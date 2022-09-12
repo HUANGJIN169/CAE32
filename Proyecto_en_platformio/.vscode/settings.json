@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "config_i2c.h": "c",
+        "esp_intr_alloc.h": "c",
+        "mcpwm_types.h": "c"
+    }
+}

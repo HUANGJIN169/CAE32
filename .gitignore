@@ -1,0 +1,5 @@
+*.FCStd1
+*.gcode
+mcpwm_servo_control/build/
+mcpwm_servo_control/.vscode/
+mcpwm_servo_control/.devcontainer/

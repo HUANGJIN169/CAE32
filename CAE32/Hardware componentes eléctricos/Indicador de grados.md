@@ -18,5 +18,4 @@ Los componentes eléctricos necesarios para construir este indicador de grados s
 
 ### 4. Fuente de alimentación
 * Se usa 2.4V  a 1.5A, con este voltaje se realizaron las pruebas pero es posible usar hasta 7V
-* **Ademas se usa un motor reductor fabricado en impresión 3D lo puedes encontrar [aquí](../Elementos%20Mecánicos/indicador%20de%20grados/Piezas%203D.md)**
-
+* **Ademas se usa un motor reductor fabricado en impresión 3D lo puedes encontrar [aquí](../Elementos%20Mecánicos/Indicador%20de%20grados/Piezas%203D.md)**

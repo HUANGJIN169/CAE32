@@ -29,8 +29,8 @@ La configuración para esta aplicación depende del movimiento de los pedales, n
 **Conozco dos maneras de obtener los grados**
 1. Usar interrupciones con ayuda de un timer para hacer la conversión de voltaje a grados y usar ese valor como entrada para el controlador PID
 2. Usar FreeRtos y asignar como tarea,hacer la conversión de voltaje a grados para el PID
-## [Aplicación de controlador PID](Control%20PID)
-## [Uso de FreeRtos](Uso%20de%20FreeRtos)
+## [Aplicación de controlador PID](Control%20PID.md)
+## [Uso de FreeRtos](Uso%20de%20FreeRtos.md)
 
 
 

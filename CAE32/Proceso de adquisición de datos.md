@@ -13,8 +13,8 @@
 - Como el motor simulara el movimiento, por ejemplo, el del un volante, este tiene que girar en un sentido o en el otro, con diferentes velocidades y cambios repentinos de sentido de giro
 - Se puede aplicar un control PID
 
-## [Materiales necesarios para crear este componente](Hardware%20componentes%20eléctricos/Indicador%20de%20grados)
-## [Obtención de grados](../Firmware/Obtención%20de%20grados)
+## [Materiales necesarios para crear este componente](Hardware%20componentes%20eléctricos/Indicador%20de%20grados.md)
+## [Obtención de grados](../Firmware/Obtención%20de%20grados.md)
 
 
 

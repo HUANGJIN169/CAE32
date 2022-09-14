@@ -2,11 +2,12 @@
 Los componentes eléctricos necesarios para construir este indicador de grados son los siguientes:
 ### 1. Motor genérico 
 * Este motor es fácil de conseguir y su costo es bajo a comparación de un servo motor o un motor a pasos
-![motor](../imágenes/motor.jpg)
+![motor](../Imágenes/motor.jpg)
 * Se desarrolla un modelo 3D de este en FreeCad para facilitar los ensambles 
-![Motor 3D](../Imágenes/Motor3D.png)
+![Motor 3D](../Imágenes/motor3D.png)
 ### 2. Modulo AS5600 
 * Se usa este mismo modelo 
+
 ![AS5600](../Imágenes/as5600.jpg)
 
 ### 3. Puente H

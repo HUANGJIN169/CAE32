@@ -14,7 +14,7 @@
 - Se puede aplicar un control PID
 
 ## [Materiales necesarios para crear este componente](Hardware%20componentes%20eléctricos/Indicador%20de%20grados.md)
-## [Obtención de grados](../Firmware/Obtención%20de%20grados.md)
+## [Obtención de grados](Firmware/Obtención%20de%20grados.md)
 
 
 

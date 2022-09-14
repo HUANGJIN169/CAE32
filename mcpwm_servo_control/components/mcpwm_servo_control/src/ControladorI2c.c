@@ -117,6 +117,7 @@ Step 8 Read and verify the ZPOS and MPOS registers again after a new power-up cy
  * @brief Rutina para la programación del encoder magnético por medio de comunicación i2c
  * 
  */
+
 void RutinaDeConfiguracion(){
     //Colocar el indicador en la posición inicial manualmente
     i2c_escritura(ADDR,CONF_REG,0b00010000);

@@ -1,6 +1,7 @@
 #include "driver/i2c.h"
 #include "esp_err.h"
 #include "freertos/task.h"
+#include  "ControladorMotor.h"
 
 #define I2C_MASTER_SCL_IO           22      /*!< GPIO number used for I2C master clock */
 #define I2C_MASTER_SDA_IO           21      /*!< GPIO number used for I2C master data  */
@@ -79,66 +80,46 @@ void i2c_escritura(uint8_t addr,uint8_t reg_addr,uint8_t data){
     i2c_master_cmd_begin(I2C_MASTER_NUM,cmd,I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 }
-/*
-Step 1 Power up the AS5600.
+void ConfiguracionMaxAng(){
+    i2c_escritura(ADDR,MANG4b,0x0B);//Los valores escritos para los registros MANG son para limitar el angulo a 0°-260° y aprovechar la máxima resolución
+    i2c_escritura(ADDR,MANG8b,0x8E);
+    i2c_escritura(ADDR,CONF_REG,0b00010000);
+}
+void LeerRawAngle(){
+    i2c_lectura(ADDR,RAW_ANGLE4b,&dato1,1);     //Lectura por medio de i2c del registro RAWANGLE y almacenados en las variables (dato1 y 2)
+    i2c_lectura(ADDR,RAW_ANGLE8b,&dato2,1);
+}
 
-Step 2 Turn the magnet to the start position.
-
-Step 3
-Read the RAW ANGLE register.
-Write the RAW ANGLE value into the ZPOS register.
-Wait at least 1 ms.
-
-Step 4
-Rotate the magnet in the direction defined by the level on the DIR pin (GND for clockwise, VDD
-for counterclockwise) to the stop position. The amount of rotation must be greater than
-18 degrees.
-
-Step 5
-Read the RAW ANGLE register.
-Write the RAW ANGLE value into the MPOS register.
-Wait at least 1 ms.
-Proceed with Step 6 to permanently program the configuration.
-
-Step 6 Perform a BURN_ANGLE command to permanently program the device.
-Wait at least 1 ms.
-
-Step 7
-Verify the BURN_ANGLE command:
-Write the commands 0x01, 0x11 and 0x10 sequentially into the register 0xFF to load the actual
-OTP content.
-Read the ZPOS and MPOS registers to verify that the BURN_ANGLE command was successful.
-
-Step 8 Read and verify the ZPOS and MPOS registers again after a new power-up cycle
-*/
-
-
+void EscribirTramaDeDatosAEncoder(uint8_t reg_addr0,uint8_t reg_addr1,uint8_t dato0,uint8_t dato1){
+    i2c_escritura(ADDR,reg_addr0,dato0);
+    i2c_escritura(ADDR,reg_addr1,dato1);
+}
 /**
  * @brief Rutina para la programación del encoder magnético por medio de comunicación i2c
  * 
  */
 
-void RutinaDeConfiguracion(){
+void RutinaDeConfiguracionManual(){
     //Colocar el indicador en la posición inicial manualmente
-    i2c_escritura(ADDR,CONF_REG,0b00010000);
+    ConfiguracionMaxAng();
     printf("Coloque el indicador en la posicion inicial");
     vTaskDelay(10000 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
-    i2c_lectura(ADDR,RAW_ANGLE4b,&dato1,1);     //Lectura por medio de i2c del registro RAWANGLE y almacenados en las variables (dato1 y 2)
-    i2c_lectura(ADDR,RAW_ANGLE8b,&dato2,1);
-    printf("Leyendo datos del registro RAW_ANGLE \t4b=%i\t8b=%i \n",dato1,dato2);
-    printf("Escribiendo valores de RAW_ANGLE a ZPOS \n");
-    i2c_escritura(ADDR,ZPOS4b,dato1);
-    i2c_escritura(ADDR,ZPOS8b,dato2);
+    LeerRawAngle();
+    printf("Leyendo datos del registro RAW_ANGLE \t4b=%i\t8b=%i \n Escribiendo valores de RAW_ANGLE a ZPOS \n",dato1,dato2);
+    EscribirTramaDeDatosAEncoder(ZPOS4b,ZPOS8b,dato1,dato2);
     printf("Coloque indicador a posición final en sentido horario");
     vTaskDelay(10000 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
-    i2c_lectura(ADDR,RAW_ANGLE4b,&dato1,1);     //Lectura por medio de i2c del registro RAWANGLE y almacenados en las variables (dato1 y 2)
-    i2c_lectura(ADDR,RAW_ANGLE8b,&dato2,1);
-    printf("Leyendo datos del registro RAW_ANGLE \t4b=%i\t8b=%i \n",dato1,dato2);
-    printf("Escribiendo valores de RAW_ANGLE a MPOS \n");
-    i2c_escritura(ADDR,MPOS4b,dato1);
-    i2c_escritura(ADDR,MPOS8b,dato2);
-}
-/*
-int EstadoDeAS5600(){
+    LeerRawAngle();
+    printf("Leyendo datos del registro RAW_ANGLE \t4b=%i\t8b=%i \n Escribiendo valores de RAW_ANGLE a MPOS \n",dato1,dato2);
+    EscribirTramaDeDatosAEncoder(MPOS4b,MPOS8b,dato1,dato2);
 
-}*/
+}
+void RutinaDeConfiguracionAutomatica(){
+    ConfiguracionMaxAng();
+    MoverMotorPorTiempo(3000,1,50);
+    LeerRawAngle();
+    EscribirTramaDeDatosAEncoder(ZPOS4b,ZPOS8b,dato1,dato2);
+    MoverMotorPorTiempo(3000,-1,50);
+    LeerRawAngle();
+    EscribirTramaDeDatosAEncoder(MPOS4b,MPOS8b,dato1,dato2);
+}

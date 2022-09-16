@@ -1,6 +1,6 @@
 #include "driver/adc.h" 
 
-#define ADC_ATT 1.750
+#define ADC_ATT 1.750/4095
 #define ADC_CHANNEL_ANGULO ADC1_CHANNEL_7
 
 /**
@@ -18,8 +18,7 @@ void IniciarAdc(){
  * @return float Voltage real
  */
  float calcular_voltaje(){
-    float resultado=adc1_get_raw(ADC_CHANNEL_ANGULO)*ADC_ATT/4095;
-    return resultado;
+    return adc1_get_raw(ADC_CHANNEL_ANGULO);
  }
 
 /**
@@ -27,6 +26,6 @@ void IniciarAdc(){
  * @return int Grados reales
  */
 int VoltajeAGrados(){
-    int grados=adc1_get_raw(ADC_CHANNEL_ANGULO)*0.078-30.09; 
+    int grados=adc1_get_raw(ADC_CHANNEL_ANGULO)*0.1203-7.5789; 
     return grados;
 }

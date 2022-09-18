@@ -116,10 +116,12 @@ void RutinaDeConfiguracionManual(){
 }
 void RutinaDeConfiguracionAutomatica(){
     ConfiguracionMaxAng();
-    MoverMotorPorTiempo(3000,1,50);
+    MoverMotorPorTiempo(40,1,100);
+    MoverMotorPorTiempo(700,1,25);
     LeerRawAngle();
     EscribirTramaDeDatosAEncoder(ZPOS4b,ZPOS8b,dato1,dato2);
-    MoverMotorPorTiempo(3000,-1,50);
+    MoverMotorPorTiempo(40,-1,100);
+    MoverMotorPorTiempo(700,-1,25);
     LeerRawAngle();
     EscribirTramaDeDatosAEncoder(MPOS4b,MPOS8b,dato1,dato2);
 }

@@ -17,6 +17,10 @@
 
 
 void app_main() {
+   int *ptr_grados=NULL;
+   ptr_grados=(int*) malloc(sizeof(int));
+   int *ptr_VoltajeRaw=NULL;
+   ptr_VoltajeRaw=(int*)malloc(sizeof(int));
    ConfPinEntrada();
 	ESP_ERROR_CHECK(i2c_master_init0());
 	mcpwm_gpio_config();
@@ -25,10 +29,27 @@ void app_main() {
    
    printf("nivel %d \n",gpio_get_level(GPIO_NUM_13));
    if(gpio_get_level(GPIO_NUM_13)==1){
-   RutinaDeConfiguracionManual();
+   RutinaDeConfiguracionAutomatica();
+   }
+   vTaskDelay(1000/ portTICK_PERIOD_MS);
+
+   while (1)
+   {
+   MoverMotorPorTiempo(10,-1,100);
+   MoverMotorPorTiempo(100,-1,25);
+   VoltajeAGradosPtr(ptr_grados);
+   ValorADCRaw(ptr_VoltajeRaw);
+   printf("/*%d,%d*/\n",*ptr_grados,*ptr_VoltajeRaw);
+   MoverMotorPorTiempo(10,1,100);
+   MoverMotorPorTiempo(100,1,25);
+   VoltajeAGradosPtr(ptr_grados);
+   ValorADCRaw(ptr_VoltajeRaw);
+   printf("/*%d,%d*/\n",*ptr_grados,*ptr_VoltajeRaw);
+   vTaskDelay(1000/ portTICK_PERIOD_MS);
+
    }
    
-  MoverMotorAGrados(90,85);
-
    
+
+
 }

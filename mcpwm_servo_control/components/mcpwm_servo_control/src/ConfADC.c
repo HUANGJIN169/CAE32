@@ -29,3 +29,12 @@ int VoltajeAGrados(){
     int grados=adc1_get_raw(ADC_CHANNEL_ANGULO)*0.1203-7.5789; 
     return grados;
 }
+int VoltajeAGradosPtr(int *grados){
+    *grados=(int)(adc1_get_raw(ADC_CHANNEL_ANGULO)*0.1203-7.5789); 
+    return (*grados>=270||*grados<=0)?1:-1;
+}
+
+int ValorADCRaw(int *raw){
+    *raw=adc1_get_raw(ADC_CHANNEL_ANGULO);
+    return 1;
+}

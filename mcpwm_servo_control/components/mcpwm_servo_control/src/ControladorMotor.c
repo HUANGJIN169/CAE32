@@ -6,6 +6,7 @@
 #include "ConfADC.h"
 #include "driver/gpio.h"
 
+
 #define ADC_CHANNEL_ANGULO ADC1_CHANNEL_7
 
 
@@ -16,14 +17,15 @@ gpio_config_t BotonRutina={
     .pull_up_en=GPIO_PULLUP_ENABLE,
     .pin_bit_mask=GPIO_NUM_13,
 };
-ESP_ERROR_CHECK(gpio_config(&BotonRutina));
+gpio_config(&BotonRutina);
 }
 
 void FrenarMotor(){
     mcpwm_set_signal_low(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A);
     mcpwm_set_signal_low(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B);
+    vTaskDelay(100/ portTICK_PERIOD_MS);
 }
-/*
+
 void MoverSentidoHorario(float cicloDeTrabajo){
     mcpwm_set_signal_low(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B);
     mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, cicloDeTrabajo);
@@ -34,7 +36,7 @@ void MoverSentidoAntihorario(float cicloDeTrabajo){
     mcpwm_set_signal_low(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A);
     mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B, cicloDeTrabajo);
     mcpwm_set_duty_type(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_B, MCPWM_DUTY_MODE_0);  //call this each time, if operator was previously in low/high state
-}*/
+}
 
 void MoverSentidoGiro(float cicloDeTrabajo, int sentidoDeGiro){
     int signal_low_opr=0;
@@ -56,6 +58,7 @@ void MoverSentidoGiro(float cicloDeTrabajo, int sentidoDeGiro){
     mcpwm_set_signal_low(MCPWM_UNIT_0, MCPWM_TIMER_0, signal_low_opr);
     mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, duty_type_opr, cicloDeTrabajo);
     mcpwm_set_duty_type(MCPWM_UNIT_0, MCPWM_TIMER_0, duty_type_opr, MCPWM_DUTY_MODE_0); //call this each time, if operator was previously in low/high state
+    //vTaskDelay(500/ portTICK_PERIOD_MS);
 }
 
 /**
@@ -69,6 +72,7 @@ void MoverMotorPorTiempo(int milisegundos,int sentidoDeGiro,float cicloDeTrabajo
     MoverSentidoGiro(cicloDeTrabajo,sentidoDeGiro);
     vTaskDelay(milisegundos / portTICK_PERIOD_MS);
     FrenarMotor();
+
 }
 /**
  * @brief Mueve el indicador a los grados deseados
@@ -88,17 +92,17 @@ bool MoverMotorAGrados(int gradosDeseados,float cicloDeTrabajo){ //Agregar la ca
 
     do
     {
-      printf("Grados actuales: %d Grados deseados: %d\n",VoltajeAGrados(),gradosDeseados);
+      printf("/*LALO,%d,%d*/\n",VoltajeAGrados(),gradosDeseados);
       if (gradosDeseados>VoltajeAGrados()){
         //gira a la derecha
-        MoverSentidoGiro(cicloDeTrabajo,1);
+        MoverSentidoGiro(cicloDeTrabajo,-1);
       }
     else{
         //gira a la izquierda
      
-        MoverSentidoGiro(cicloDeTrabajo,-1);
+        MoverSentidoGiro(cicloDeTrabajo,1);
     }
-      vTaskDelay(1000/ portTICK_PERIOD_MS);
+      vTaskDelay(110/ portTICK_PERIOD_MS);
       
     } while (VoltajeAGrados()!=gradosDeseados);
      FrenarMotor();

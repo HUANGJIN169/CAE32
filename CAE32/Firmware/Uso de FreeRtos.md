@@ -13,4 +13,8 @@ Para controlar el tiempo de ejecución de cada función es necesario usar FreeRt
 |--|--|
 |1|Debe de ejecutarse 4 veces consecutivamente cada cierto periodo de tiempo|
 |2,3,4|Tarea periódica para tener un dispositivo sincrónico|
+ 
+## Queue o no Queue
+Parece que la mejor forma de pasar datos entre tareas es por medio de queues, ya que es menos probable que te des un disparo en el pie ya que no es necesario el uso de punteros, aunque también se pueden usar.
+
 

@@ -2,6 +2,12 @@
 
 #define ADC_ATT 1.750/4095
 #define ADC_CHANNEL_ANGULO ADC1_CHANNEL_7
+/**
+ * Notas
+ *  añadir como parametros el canal ADC, resolución a las funciones que lo requieran 
+ *  retornar un error si el canal no existe
+ * 
+ */
 
 /**
  * @brief Inicializa el ADC y específica la resolución del ADC y selecciona el pin de entrada en este caso el pin 35

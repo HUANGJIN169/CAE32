@@ -7,7 +7,7 @@
 #include "driver/gpio.h"
 
 
-#define ADC_CHANNEL_ANGULO ADC1_CHANNEL_7
+//#define ADC_CHANNEL_ANGULO ADC1_CHANNEL_7
 
 
 

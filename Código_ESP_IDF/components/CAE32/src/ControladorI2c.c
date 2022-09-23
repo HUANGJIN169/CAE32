@@ -3,6 +3,26 @@
 #include "freertos/task.h"
 #include  "ControladorMotor.h"
 
+
+
+/**
+ *  Hacer algo con los define correspondientes al la inicialización ya que se encuentran duplicados en 2 archivos c
+ *  Agregar punteros para las variables conocidas como dato 1 y 2
+ *  Modificar la función de escritura ya que creo que inicia y cierra la comunicación para cado dato, en vez de enviar toda la trama y cerrar la comunicación
+ *  crear una función varidica para enviar la trama de datos
+ */
+
+
+
+
+
+
+
+
+
+
+
+
 #define I2C_MASTER_SCL_IO           22      /*!< GPIO number used for I2C master clock */
 #define I2C_MASTER_SDA_IO           21      /*!< GPIO number used for I2C master data  */
 #define I2C_MASTER_NUM              0                          /*!< I2C master i2c port number, the number of i2c peripheral interfaces available will depend on the chip */
@@ -29,7 +49,6 @@
 // Variables para almacenar los datos de los registros RAWANGLE--------------------------------------------
 uint8_t dato1=0;
 uint8_t dato2=0;
-bool configuracion=false;
 // --------------------------------------------------------------------------------------------------------
 /**
  * @brief Lee un registro de algún de algun dispositivo por i2c

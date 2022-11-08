@@ -1,0 +1,6 @@
+*.FCStd1
+*.gcode
+Código_ESP_IDF/build/
+Código_ESP_IDF/.vscode/
+Código_ESP_IDF/.devcontainer/
+CAE32/.obsidian/

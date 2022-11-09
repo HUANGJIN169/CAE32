@@ -41,7 +41,6 @@
 #include <stdlib.h>
 
 
-void test_en (struct Encoder *lalito);
 void CalcularValorMapeado(struct Encoder *Pedal);
 /*<<<<<<<<<<<<<<<<<<<<Declaración de pedales>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 struct Encoder Freno={
@@ -54,7 +53,7 @@ struct Encoder Freno={
     .Giro=0,
     .ValorInicial=0,
     .ValorFinal=0,
-    .PinActivacion=PIN_ENABLE_FRENO,
+    .PinActivacion=27,
     .CanalADC=7,
     .GradosDeGiro=1  
 };
@@ -70,7 +69,7 @@ struct Encoder Acelerador={
     .Giro=0,
     .ValorInicial=0,
     .ValorFinal=0,
-    .PinActivacion=PIN_ENABLE_ACELERADOR,
+    .PinActivacion=26,
     .CanalADC=6,
     .GradosDeGiro=1
 
@@ -87,7 +86,7 @@ struct Encoder Clutch={
     .Giro=0,
     .ValorInicial=0,
     .ValorFinal=0,
-    .PinActivacion=PIN_ENABLE_CLUTCH,
+    .PinActivacion=25,
     .CanalADC=5,
     .GradosDeGiro=1
 };
@@ -102,7 +101,7 @@ struct Encoder Volante={
     .Giro=0,
     .ValorInicial=0,
     .ValorFinal=0,
-    .PinActivacion=PIN_ENABLE_VOLANTE,
+    .PinActivacion=14,
     .CanalADC=4,
     .GradosDeGiro=900 //Valor estandar para los volantes de entrada
 };
@@ -182,7 +181,7 @@ void CalcularValorMapeado(struct Encoder *Pedal){
 
 void InicializacionPedalesVolante(){
     ESP_ERROR_CHECK(adc_oneshot_new_unit(&inicializacionConfig, &adc_handle_general));
-    for (int i=0; i<=3; i++){               //Ciclo iniciar la configuracion del ADC a todos los canales (pines) 
+    for (int i=0; i<=3; i++){               //Ciclo para iniciar la configuracion del ADC a todos los canales (pines) 
         InicializacionCanalADC(matrix_ptr_encoders[i]);
     }
 }
@@ -197,17 +196,159 @@ void InicializacionPedalesVolante(){
 
 
 /*======================================================================*/
+//   ____ ____ ___ ___      Para leer y calibrar el encoder se tiene que añadir una forma de desactivar los demas encoders, y esto secede por que todos  
+//  / ___|  _ \_ _/ _ \     tienen la misma dirección i2c y no hay forma de cambiarlos
+// | |  _| |_) | | | | |
+// | |_| |  __/| | |_| |    El plan es tener un transistor que desconecte el scl de los demas encoders que no se esten programando
+//  \____|_|  |___\___/     Los pines de activación se encuentran en el la estructura Encoder 
+/*======================================================================*/
+#include "driver/gpio.h"
+// Declaracion de configuracion de pines//
+
+gpio_config_t configuracionPines={
+    .mode= GPIO_MODE_OUTPUT,
+    .pull_up_en=GPIO_PULLUP_DISABLE,
+    .pull_down_en=GPIO_PULLDOWN_ENABLE,
+    .intr_type=GPIO_INTR_DISABLE
+};
+
+//-------------------------------------//
+
+void DireccionPines(struct Encoder *Pedal){ //Declara los pines de activacion correspondientes de cada encoder como salida
+    ESP_ERROR_CHECK(gpio_set_direction(Pedal->PinActivacion,configuracionPines.mode));
+}
+
+void IniciarPines(){                        //Ciclo for para seleccionar los pines que se usaran como salida
+    for (int i =0; i<=3; i++){               
+        DireccionPines(matrix_ptr_encoders[i]);
+    }
+}
+
+void ActivarODesactivarEncoder(struct Encoder *Pedal,uint8_t estado){ //Habilita o desabilita la comunicación con un encoder
+  int matrixPines[4];
+    for (int i =0; i<=3; i++){               
+        matrixPines[i]=matrix_ptr_encoders[i]->PinActivacion;
+    }
+  
+  
+  if (estado==1){ //Activar el transistor en todos los demas para evitar que no choque el bus menos en el que se esta calibrando
+    for(int i=0;i<=3;i++){
+        if(matrixPines[i]==Pedal->PinActivacion){
+            gpio_set_level(matrixPines[i],0);
+        }
+        else{
+            gpio_set_level(matrixPines[i],1);
+        }
+    }
+    
+
+  }
+    else{//Desactiva el transistor en todos los pines
+    
+    for (int i =0; i<=3; i++){               
+    gpio_set_level(matrixPines[i],1);
+    }
+    }
+}
+
+/*======================================================================*/
+//   ____ ____ ___ ___  
+/*  / ___|  _ \_ _/ _ \  */
+// | |  _| |_) | | | | |
+// | |_| |  __/| | |_| |
+//  \____|_|  |___\___/ 
+/*======================================================================*/
+
+
+
+/*======================================================================*/
 //  _ ____      
 // (_)___ \ ___ 
 // | | __) / __|
 // | |/ __/ (__ 
 // |_|_____\___|
 /*======================================================================*/
+#include "driver/i2c.h"
+
+//Tomado del ejemplo de ESP-IDF de comunicación i2c
+//https://github.com/espressif/esp-idf/blob/master/examples/peripherals/i2c/i2c_simple/main/i2c_simple_main.c
+
+const int I2C_MASTER_SCL_IO=22;                         /*!< GPIO number used for I2C master clock */
+const int I2C_MASTER_SDA_IO=21;                         /*!< GPIO number used for I2C master data  */
+const int I2C_MASTER_NUM=0;                          /*!< I2C master i2c port number, the number of i2c peripheral interfaces available will depend on the chip */
+const int I2C_MASTER_FREQ_HZ=400000;                     /*!< I2C master clock frequency */
+const int I2C_MASTER_TX_BUF_DISABLE=0;                          /*!< I2C master doesn't need buffer */
+const int I2C_MASTER_RX_BUF_DISABLE=0;                          /*!< I2C master doesn't need buffer */
+const int I2C_MASTER_TIMEOUT_MS=1000;
+
+esp_err_t i2c_Master_Init(void)
+{
+    int i2c_master_port = I2C_MASTER_NUM;
+
+    i2c_config_t conf = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = I2C_MASTER_SDA_IO,
+        .scl_io_num = I2C_MASTER_SCL_IO,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = I2C_MASTER_FREQ_HZ,
+    };
+
+    i2c_param_config(i2c_master_port, &conf);
+
+    return i2c_driver_install(i2c_master_port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+}
+
+
+void i2c_Master_Inicio(){
+    i2c_Master_Init();
+}
+
+esp_err_t i2c_lectura(uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint16_t len)
+{
+    //desarrollar una funcion varidica para meterle como parametros todos los registros que quiera leer 
+     esp_err_t ret;
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (slave_addr<<1), 1);
+    i2c_master_write_byte(cmd, reg_addr, 1);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM_0, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    if (ret != ESP_OK) {
+        return ret;
+    }
+    cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (slave_addr<<1)|1, 1);
+    i2c_master_read(cmd, data, len,  I2C_MASTER_LAST_NACK);
+    i2c_master_stop(cmd);
+    ret = i2c_master_cmd_begin(I2C_NUM_0, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+/*Registros relacionados a la configuracion y estado del encoder*/
+const uint8_t ADDR=0x36;
+const uint8_t CONF_REG=0x08;
+const uint8_t RAW_ANGLE_L=0x0C;
+const uint8_t RAW_ANGLE_M=0x0D;
+const uint8_t ZPOS_L=0x01;
+const uint8_t ZPOS_M=0x02;
+const uint8_t MANG_L=0x05;
+const uint8_t MANG_M=0x06;
+const uint8_t MPOS_L=0x03;
+const uint8_t MPOS_M=0x04;
+const uint8_t STATUSE=0x0B;
+/*---------------------------------------------------------------*/
 
 
 
 void LeerEstadoAS5600 (struct Encoder *Pedal){
 //Para leer el valor del estado del encoder aka AS5600 es nesesario usar la comunicación i2c
+uint8_t temporat;
+i2c_lectura(ADDR,STATUSE,&temporat,1);
+printf("%d\n",temporat);
 
 }
 
+ 

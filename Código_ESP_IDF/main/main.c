@@ -15,9 +15,10 @@ CalcularValorMapeado(ptr_acelerador);
 imprimirValoresEncoder(ptr_acelerador);
 
 i2c_Master_Inicio();
-LeerEstadoAS5600(ptr_acelerador);
 IniciarPines();
 ActivarODesactivarEncoder(ptr_acelerador,1);
+IniciarPinConfiguracion();
+CalibracionEncoder(ptr_acelerador);
 }
 
 

@@ -51,8 +51,8 @@ struct Encoder Freno={
     .Error=0,
     .PinADC=0,
     .Giro=0,
-    .ValorInicial=0,
-    .ValorFinal=0,
+    .ValorInicial={0,0},
+    .ValorFinal={0,0},
     .PinActivacion=27,
     .CanalADC=7,
     .GradosDeGiro=1  
@@ -67,8 +67,8 @@ struct Encoder Acelerador={
     .Error=0,
     .PinADC=0,
     .Giro=0,
-    .ValorInicial=0,
-    .ValorFinal=0,
+    .ValorInicial={0,0},
+    .ValorFinal={0,0},
     .PinActivacion=26,
     .CanalADC=6,
     .GradosDeGiro=1
@@ -84,23 +84,23 @@ struct Encoder Clutch={
     .Error=0,
     .PinADC=0,
     .Giro=0,
-    .ValorInicial=0,
-    .ValorFinal=0,
-    .PinActivacion=25,
+    .ValorInicial={0,0},
+    .ValorFinal={0,0},
+    .PinActivacion=21,
     .CanalADC=5,
     .GradosDeGiro=1
 };
 
 struct Encoder Volante={
-    .ResolucionBits=8,
+    .ResolucionBits=255,
     .TPedal={'V'},
     .ValorBrutoADC=0,
     .ValorMapeado=0,
     .Error=0,
     .PinADC=0,
     .Giro=0,
-    .ValorInicial=0,
-    .ValorFinal=0,
+    .ValorInicial={0,0},
+    .ValorFinal={0,0},
     .PinActivacion=14,
     .CanalADC=4,
     .GradosDeGiro=900 //Valor estandar para los volantes de entrada
@@ -162,19 +162,19 @@ void InicializacionCanalADC (struct Encoder *Pedal1){
 
 
 
-void LeerValorBrutoADC (struct Encoder *Pedal){
+void LeerValorBrutoADC (struct Encoder *Pedal){ //En base del canal de la estructura, ejecuta una lectura y lo guarda en su estructura
     ESP_ERROR_CHECK(adc_oneshot_read(adc_handle_general,Pedal->CanalADC,&Pedal->ValorBrutoADC));
 }
 
 
 
-void imprimirValoresEncoder(struct Encoder *Pedal){
+void imprimirValoresEncoder(struct Encoder *Pedal){ //imprime todos las variables de una estructura dada con el proposito de hacer debuggin
     printf("------------------------\nPedal %s \n",Pedal->TPedal);
-    printf("Valores iniciales | Lectura ADC:%d\t Valor Superior:%d\t Valor Inicial:%d\t Valor Mapeado:%d\n",Pedal->ValorBrutoADC,Pedal->ValorFinal,Pedal->ValorInicial,Pedal->ValorMapeado);
+    printf("Valores iniciales | Lectura ADC:%d\t Valor Superior:%d|%d\t Valor Inicial:%d|%d\t Valor Mapeado:%d\n",Pedal->ValorBrutoADC,Pedal->ValorFinal[0],Pedal->ValorFinal[1],Pedal->ValorInicial[0],Pedal->ValorInicial[1],Pedal->ValorMapeado);
     printf("Canal %d y pin correspondiente %d\n------------------------\n",Pedal->CanalADC,Pedal->PinADC);
 }
 
-void CalcularValorMapeado(struct Encoder *Pedal){
+void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a la estructura que servira para ser enviada por usb
     Pedal->ValorMapeado=Pedal->ValorBrutoADC+110;
     }
 
@@ -203,8 +203,9 @@ void InicializacionPedalesVolante(){
 //  \____|_|  |___\___/     Los pines de activación se encuentran en el la estructura Encoder 
 /*======================================================================*/
 #include "driver/gpio.h"
-// Declaracion de configuracion de pines//
+const unsigned int PinBoton=13; //Pin para confirmar acciones
 
+// Declaracion de configuracion de pines//
 gpio_config_t configuracionPines={
     .mode= GPIO_MODE_OUTPUT,
     .pull_up_en=GPIO_PULLUP_DISABLE,
@@ -227,28 +228,29 @@ void IniciarPines(){                        //Ciclo for para seleccionar los pin
 void ActivarODesactivarEncoder(struct Encoder *Pedal,uint8_t estado){ //Habilita o desabilita la comunicación con un encoder
   int matrixPines[4];
     for (int i =0; i<=3; i++){               
-        matrixPines[i]=matrix_ptr_encoders[i]->PinActivacion;
+        matrixPines[i]=matrix_ptr_encoders[i]->PinActivacion; //Carga el numero de pin de cada encoder a la matrixPines
     }
-  
-  
-  if (estado==1){ //Activar el transistor en todos los demas para evitar que no choque el bus menos en el que se esta calibrando
+    
+  if (estado==1){ //Activar el transistor en todos los demas para evitar que no choque el bus, menos en el que se esta calibrando
     for(int i=0;i<=3;i++){
-        if(matrixPines[i]==Pedal->PinActivacion){
+        if(matrixPines[i]==Pedal->PinActivacion){ 
             gpio_set_level(matrixPines[i],0);
         }
         else{
             gpio_set_level(matrixPines[i],1);
         }
     }
-    
-
-  }
+    }
     else{//Desactiva el transistor en todos los pines
     
     for (int i =0; i<=3; i++){               
     gpio_set_level(matrixPines[i],1);
     }
     }
+}
+
+void IniciarPinConfiguracion(){ //Este pin tiene la utilidad de servir como boton de confirmación en diferentes procesos
+    ESP_ERROR_CHECK(gpio_set_direction(PinBoton,GPIO_MODE_INPUT));
 }
 
 /*======================================================================*/
@@ -327,6 +329,20 @@ esp_err_t i2c_lectura(uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint1
     i2c_cmd_link_delete(cmd);
     return ret;
 }
+
+void i2c_escritura(uint8_t addr,uint8_t reg_addr,uint8_t data){
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd,(addr<<1),0x0);
+    i2c_master_write(cmd,&reg_addr,1,0x0);
+    i2c_master_write(cmd,&data,1,0x0);
+    i2c_master_stop(cmd); 
+    i2c_master_cmd_begin(I2C_MASTER_NUM,cmd,I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+}
+
+
+
 /*Registros relacionados a la configuracion y estado del encoder*/
 const uint8_t ADDR=0x36;
 const uint8_t CONF_REG=0x08;
@@ -338,16 +354,82 @@ const uint8_t MANG_L=0x05;
 const uint8_t MANG_M=0x06;
 const uint8_t MPOS_L=0x03;
 const uint8_t MPOS_M=0x04;
-const uint8_t STATUSE=0x0B;
+const uint8_t STATUSENCODER=0x0B;
 /*---------------------------------------------------------------*/
 
 
 
-void LeerEstadoAS5600 (struct Encoder *Pedal){
+int LeerEstadoAS5600 (struct Encoder *Pedal){
 //Para leer el valor del estado del encoder aka AS5600 es nesesario usar la comunicación i2c
-uint8_t temporat;
-i2c_lectura(ADDR,STATUSE,&temporat,1);
-printf("%d\n",temporat);
+char Estado[3][30]={"No se detecto imán","Imán demasiado cerca","Imán demasiado lejos"};
+unsigned char valorRegistro;
+
+i2c_lectura(ADDR,STATUSENCODER,&valorRegistro,1); //Se lee el registro que contiene el status del encoder y se guarda en la variable valorRegistro
+valorRegistro=valorRegistro<<2; //Se hace una manipulación de bits para solo evaluar los bits que nos interesan representados con (-) ejemplo (0b**---***) 
+valorRegistro=valorRegistro>>5;
+
+switch (valorRegistro) // se compara el valorRegistro con el valor mostrado en la hoja de datos 
+{
+case 0b000:     
+    printf("%s \n",Estado[0]);
+    return -1;
+    break;
+case 0b100: 
+    printf("%s \n",Estado[1]);
+    return -2;
+    break;
+case 0b010:
+    printf("%s \n",Estado[2]);
+    return -3;
+    break;
+
+default:
+    printf("[OK]\tEl Encoder :%s, Imán correctamente posicionado\n",Pedal->TPedal);
+    return 0;
+    break;
+}
+
+
+}
+
+int CalibracionEncoder(struct Encoder *Pedal){ //Con esta funcion se calibran los topes fisícos de cada Encoder exeptuando el Volante
+    printf("Intentado calibrar el encoder identificado como %s\n",Pedal->TPedal);
+    //Primero hay que comprobar el estado del encoder, ya que es necesario que este tenga el íman colocado, si no se encuentra no tiene sentido continuar con la calibracion
+    if (LeerEstadoAS5600(Pedal)<0){
+        printf("No se logro calibrar el encoder, por un error en la posicion del imán\n");
+        return -1;
+    }
+
+
+    printf("Presiona o mueve el pedal hasta la posicion final (a fondo) y presiona el Botón de configuración\n");
+
+do
+{
+    
+    vTaskDelay(10 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
+            i2c_lectura(ADDR,RAW_ANGLE_M,&Pedal->ValorFinal[0],1);//2
+            i2c_lectura(ADDR,RAW_ANGLE_L,&Pedal->ValorFinal[1],1);//240
+
+} while (gpio_get_level(PinBoton)==0);
+
+    vTaskDelay(500 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
+
+    printf("Suelta o mueve el pedal hasta la posicion inicial (en reposo) y presiona el Botón de configuración\n");
+do
+{
+    
+    vTaskDelay(10 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
+            i2c_lectura(ADDR,RAW_ANGLE_M,&Pedal->ValorInicial[0],1);//2
+            i2c_lectura(ADDR,RAW_ANGLE_L,&Pedal->ValorInicial[1],1);//240
+
+} while (gpio_get_level(PinBoton)==0);
+
+            
+            
+
+ 
+   imprimirValoresEncoder(Pedal);
+    return 0;
 
 }
 

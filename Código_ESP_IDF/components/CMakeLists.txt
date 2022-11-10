@@ -1,4 +1,4 @@
-set(component_srcs "src/Encoders.c" "src/Errores.c")
+set(component_srcs "src/Encoders.c" "src/Errores.c" "src/Marchas")
 
 idf_component_register(SRCS "${component_srcs}"
                        INCLUDE_DIRS "include" "."

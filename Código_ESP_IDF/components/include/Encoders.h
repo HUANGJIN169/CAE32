@@ -16,11 +16,12 @@ struct Encoder
   int Error;			        /*Se guarda el error para que sea verificado y reportado al kernel */
   int PinADC;			        /*Pin que se usa para la lectura analogica */
   int Giro;			          /*>>>>>ESTE VALOR SOLO SE USA EN EL VOLANTE, PARA INDENTIFICAR EN CUANTOS GIROS DE 360° SE HAN REALIZADO<<<<< */
-  unsigned int ValorInicial[2];		    
+  unsigned int ValorInicial[2];		    /*Estos valores deben guardarse en la EEPROM del ESP-32 para no tener que reprogramarlos cada vez que se encienden*/ 
   unsigned int ValorFinal[2];		      /*Valores para identificar el tope físico de cada pedal aka:Hardlock*/  
   int PinActivacion;	    /*Pin para activar y desactivar cada encoder para evitar choques en el bus ADC */
   int CanalADC;           /*El canal corresponde a un pin y se mostrara en la terminal al ejecutar InicializacionCanalADC*/
   int GradosDeGiro;       /*Corresponde a la configuración de los grados maximos de giro*/
+  
 };
 
 
@@ -42,6 +43,7 @@ void InicializacionPedalesVolante();                    //Carga la configuracion
 void IniciarPines();                                                        //Habilita los pines como salida provenietes de la estructura Encoder
 void ActivarODesactivarEncoder(struct Encoder *Pedal,unsigned char estado); //Habilita o desabilita la comunicación con un encoder
 void IniciarPinConfiguracion(); //Este pin tiene la utilidad de servir como boton de confirmación en diferentes procesos
+void DireccionPines(struct Encoder *Pedal); 
 //<<<<<<<<<<<<<<<<<<<GPIO>>>>>>>>>>>>>>>>>>>
 
 
@@ -49,6 +51,8 @@ void IniciarPinConfiguracion(); //Este pin tiene la utilidad de servir como boto
 int LeerEstadoAS5600 (struct Encoder *Pedal);               /*Lee los registros del encoder relacionados a la posición del imán y si exiten algun error lo reporta a la estructura error*/
 void i2c_Master_Inicio();                                   //Inicia un puerto i2c como maestro
 int CalibracionEncoder(struct Encoder *Pedal);             //Calibra el encoder, grabando los limites fisicos del pedal
+void CalcularRangoMovimiento(struct Encoder *Pedal);
+void CargaDePosiciones(struct Encoder *Pedal);
 //<<<<<<<<<<<<<<<<<<<i2c>>>>>>>>>>>>>>>>>>>>
 
 

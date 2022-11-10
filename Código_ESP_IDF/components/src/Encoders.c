@@ -1,6 +1,6 @@
 //**************Configuraciones para los encoders AS5600******************//
 //  Este código tiene como objetivo realizar las configuraciones necesarias
-//  para lograr utilizar los encoders las tareas que deben de ejecutarse son
+//  para lograr utilizar los encoders y las tareas que deben de ejecutarse son
 //      
 //
 //      * Inicialización de todos los pines para lecturas analogicas
@@ -8,7 +8,7 @@
 //      * Escritura y lectura de los encoders usando comunicación i2c
 //      * Manejo de activación de cada encoder, esto por que el AS5600 no se puede cambiar su dirección
 //***********************************************************************//
-//  EL CÓDIGO SE ENCUENTRA SEPARADO EN 2 PARTES, ESTAN SEPARADAS POR ADC Y COMUNICACIÓN I2C
+//  EL CÓDIGO SE ENCUENTRA SEPARADO EN 3 PARTES: ADC,GPIO Y COMUNICACIÓN I2C
 
 
 /*======================================================================*/
@@ -46,7 +46,7 @@ void CalcularValorMapeado(struct Encoder *Pedal);
 struct Encoder Freno={
     .ResolucionBits=255,
     .TPedal={'F'},
-    .ValorBrutoADC=0,
+    .ValorBrutoADC=1,
     .ValorMapeado=0,
     .Error=0,
     .PinADC=0,
@@ -62,7 +62,7 @@ struct Encoder Freno={
 struct Encoder Acelerador={
     .ResolucionBits=255,
     .TPedal={'A'},
-    .ValorBrutoADC=0,
+    .ValorBrutoADC=1,
     .ValorMapeado=0,
     .Error=0,
     .PinADC=0,
@@ -157,7 +157,7 @@ adc_oneshot_chan_cfg_t configuracion ={
 void InicializacionCanalADC (struct Encoder *Pedal1){
     ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle_general,Pedal1->CanalADC,&configuracion));
     ESP_ERROR_CHECK(adc_oneshot_channel_to_io(inicializacionConfig.unit_id,Pedal1->CanalADC,&Pedal1->PinADC));
-    printf("El canal %d corresponde al pin %d del %s\n",Pedal1->CanalADC,Pedal1->PinADC,Pedal1->TPedal);
+    //printf("El canal %d corresponde al pin %d del %s\n",Pedal1->CanalADC,Pedal1->PinADC,Pedal1->TPedal);
     }
 
 
@@ -170,12 +170,13 @@ void LeerValorBrutoADC (struct Encoder *Pedal){ //En base del canal de la estruc
 
 void imprimirValoresEncoder(struct Encoder *Pedal){ //imprime todos las variables de una estructura dada con el proposito de hacer debuggin
     printf("------------------------\nPedal %s \n",Pedal->TPedal);
-    printf("Valores iniciales | Lectura ADC:%d\t Valor Superior:%d|%d\t Valor Inicial:%d|%d\t Valor Mapeado:%d\n",Pedal->ValorBrutoADC,Pedal->ValorFinal[0],Pedal->ValorFinal[1],Pedal->ValorInicial[0],Pedal->ValorInicial[1],Pedal->ValorMapeado);
+    printf("Valores iniciales | Lectura ADC:%d\t Valor Superior:%d|%d\t Valor Inicial:%d|%d\t Valor Mapeado:%d\t",Pedal->ValorBrutoADC,Pedal->ValorFinal[0],Pedal->ValorFinal[1],Pedal->ValorInicial[0],Pedal->ValorInicial[1],Pedal->ValorMapeado);
+    printf("Grados:%d \n",Pedal->GradosDeGiro);
     printf("Canal %d y pin correspondiente %d\n------------------------\n",Pedal->CanalADC,Pedal->PinADC);
 }
 
 void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a la estructura que servira para ser enviada por usb
-    Pedal->ValorMapeado=Pedal->ValorBrutoADC+110;
+    Pedal->ValorMapeado=(Pedal->ResolucionBits/Pedal->ValorBrutoADC)*Pedal->GradosDeGiro+1;
     }
 
 
@@ -371,15 +372,15 @@ valorRegistro=valorRegistro>>5;
 switch (valorRegistro) // se compara el valorRegistro con el valor mostrado en la hoja de datos 
 {
 case 0b000:     
-    printf("%s \n",Estado[0]);
+    printf("[ERROR]\t%s \n",Estado[0]);
     return -1;
     break;
 case 0b100: 
-    printf("%s \n",Estado[1]);
+    printf("[ERROR]\t%s \n",Estado[1]);
     return -2;
     break;
 case 0b010:
-    printf("%s \n",Estado[2]);
+    printf("[ERROR]\t%s \n",Estado[2]);
     return -3;
     break;
 
@@ -392,43 +393,80 @@ default:
 
 }
 
+
+void CalcularRangoMovimiento(struct Encoder *Pedal){ //Calcula cuantos grados de movimento tiene un pedal 0°-360° y >360, tambien depende del sentido en el que se gira se puede configurar con el pin <DIR> del encoder
+    int Grados[2];
+    Grados[0]=Pedal->ValorFinal[0]-Pedal->ValorInicial[0];//149-82
+    Grados[1]=Pedal->ValorFinal[1]-Pedal->ValorInicial[1];//13-6
+    Grados[1]=Grados[1]*24;//*********************Es necesario cambiar esta formula por que trunca los datos**************************
+    Grados[0]=Grados[0]/24;//*********************************************************************************************************
+    
+    Pedal->GradosDeGiro=Grados[0]+Grados[1];
+    i2c_escritura(ADDR,ZPOS_L,Pedal->ValorFinal[1]);
+    i2c_escritura(ADDR,ZPOS_M,Pedal->ValorFinal[0]);
+    i2c_escritura(ADDR,MPOS_L,Pedal->ValorInicial[0]);
+    i2c_escritura(ADDR,MPOS_M,Pedal->ValorInicial[0]);
+    i2c_escritura(ADDR,MANG_L,Grados[1]);
+    i2c_escritura(ADDR,MANG_M,Grados[0]);
+    
+
+}
+
+
+void CargaDePosiciones(struct Encoder *Pedal){
+//Carga los valores finales e iniciales del encoder estos se encuentran en la estructura ValorFinal y ValorInicial
+//******************************IMPORTANTE***************************************************************************************************************//
+//Los Valores que son leidos en la funcion CalibracionEncoder se incrementan o decrementan dependiendo del pin DIR del Encoder
+//Ya que si esta conectado a GND aumentaran los valores cuando gire en el sentido horario, y si esta en VCC este aumenta cuando gire en sentido antihorario
+//Así que este puede ser un problema al momento de calcular el rango de moviento 
+//*******************************************************************************************************************************************************//
+    
+    i2c_escritura(ADDR,ZPOS_L,Pedal->ValorFinal[1]);
+    i2c_escritura(ADDR,ZPOS_M,Pedal->ValorFinal[0]);
+    i2c_escritura(ADDR,MPOS_L,Pedal->ValorInicial[0]);
+    i2c_escritura(ADDR,MPOS_M,Pedal->ValorInicial[0]);
+
+
+}
+
 int CalibracionEncoder(struct Encoder *Pedal){ //Con esta funcion se calibran los topes fisícos de cada Encoder exeptuando el Volante
-    printf("Intentado calibrar el encoder identificado como %s\n",Pedal->TPedal);
+    printf("Intentando calibrar el encoder identificado como %s\n",Pedal->TPedal);
+    
     //Primero hay que comprobar el estado del encoder, ya que es necesario que este tenga el íman colocado, si no se encuentra no tiene sentido continuar con la calibracion
     if (LeerEstadoAS5600(Pedal)<0){
         printf("No se logro calibrar el encoder, por un error en la posicion del imán\n");
         return -1;
     }
+    //----------------------------------------------------------------------------
 
+    //Se capturan los datos del encoder en la posicion inicial y final para despues configurar el maximo angulo de acción en el encoder y aprobechar la maxima resolución
 
     printf("Presiona o mueve el pedal hasta la posicion final (a fondo) y presiona el Botón de configuración\n");
 
 do
 {
     
-    vTaskDelay(10 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
-            i2c_lectura(ADDR,RAW_ANGLE_M,&Pedal->ValorFinal[0],1);//2
-            i2c_lectura(ADDR,RAW_ANGLE_L,&Pedal->ValorFinal[1],1);//240
+    vTaskDelay(10 / portTICK_PERIOD_MS);//Necesario si no se crashea el ESP32 sera remplazado por una interrupcion o otro algoritmo
+            i2c_lectura(ADDR,RAW_ANGLE_M,&Pedal->ValorFinal[0],1);
+            i2c_lectura(ADDR,RAW_ANGLE_L,&Pedal->ValorFinal[1],1);
 
 } while (gpio_get_level(PinBoton)==0);
 
-    vTaskDelay(500 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
+    vTaskDelay(500 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
 
     printf("Suelta o mueve el pedal hasta la posicion inicial (en reposo) y presiona el Botón de configuración\n");
 do
 {
     
-    vTaskDelay(10 / portTICK_PERIOD_MS);//Esperar 10 segundos para alcanzar a colocarlo manualmente
+    vTaskDelay(10 / portTICK_PERIOD_MS);//Necesario si no se crashea el ESP32 sera remplazado por una interrupcion o otro algoritmo
             i2c_lectura(ADDR,RAW_ANGLE_M,&Pedal->ValorInicial[0],1);//2
             i2c_lectura(ADDR,RAW_ANGLE_L,&Pedal->ValorInicial[1],1);//240
 
 } while (gpio_get_level(PinBoton)==0);
-
-            
-            
-
- 
-   imprimirValoresEncoder(Pedal);
+    //------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------
+    CalcularRangoMovimiento(Pedal); //Calcula cuantos grados de movimento tiene un pedal 0°-360° y >360, tambien depende del sentido en el que se gira se puede configurar con el pin <DIR> del encoder
+    imprimirValoresEncoder(Pedal);
     return 0;
 
 }

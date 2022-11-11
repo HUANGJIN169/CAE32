@@ -33,14 +33,14 @@ extern struct Encoder *ptr_volante;
 
 //<<<<<<<<<<<<<<<<<<<ADC>>>>>>>>>>>>>>>>>>>>
 void imprimirValoresEncoder(struct Encoder *Pedal);     //Imprime toda la iformacion de un encoder 
-void IniciarAsignacionMemoria();                        //Asigna memoria dinamica a cada estructura de cada pedal
+void IniciarAsignacionMemoriaEncoder();                        //Asigna memoria dinamica a cada estructura de cada pedal
 void InicializacionCanalADC (struct Encoder *Pedal1);   //Carga valores de configuracion a los diferentes canales como resolucion y atenuacion 
 void InicializacionPedalesVolante();                    //Carga la configuracion anterior a cada pedal 
 //<<<<<<<<<<<<<<<<<<<ADC>>>>>>>>>>>>>>>>>>>>
 
 
 //<<<<<<<<<<<<<<<<<<<GPIO>>>>>>>>>>>>>>>>>>>
-void IniciarPines();                                                        //Habilita los pines como salida provenietes de la estructura Encoder
+void IniciarPinesActivacionEncoder();                                                        //Habilita los pines como salida provenietes de la estructura Encoder
 void ActivarODesactivarEncoder(struct Encoder *Pedal,unsigned char estado); //Habilita o desabilita la comunicación con un encoder
 void IniciarPinConfiguracion(); //Este pin tiene la utilidad de servir como boton de confirmación en diferentes procesos
 void DireccionPines(struct Encoder *Pedal); 

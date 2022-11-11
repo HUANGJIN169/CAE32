@@ -120,7 +120,7 @@ struct Encoder *matrix_ptr_encoders[4];
 
 
 
-void IniciarAsignacionMemoria(){
+void IniciarAsignacionMemoriaEncoder(){
 ptr_volante=malloc(sizeof(struct Encoder));
 ptr_volante=&Volante;
 ptr_freno=malloc(sizeof(struct Encoder*));
@@ -176,8 +176,13 @@ void imprimirValoresEncoder(struct Encoder *Pedal){ //imprime todos las variable
 }
 
 void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a la estructura que servira para ser enviada por usb
-    Pedal->ValorMapeado=(Pedal->ResolucionBits/Pedal->ValorBrutoADC)*Pedal->GradosDeGiro+1;
+    if (Pedal->ValorBrutoADC<=0||Pedal->ValorBrutoADC>=2047){
+        printf("[ERROR]\tValor fuera de rango\n");
+    } 
+    else{
+    Pedal->ValorMapeado=((float)Pedal->ResolucionBits/2048.0)*Pedal->ValorBrutoADC;
     }
+}
 
 
 void InicializacionPedalesVolante(){
@@ -220,7 +225,7 @@ void DireccionPines(struct Encoder *Pedal){ //Declara los pines de activacion co
     ESP_ERROR_CHECK(gpio_set_direction(Pedal->PinActivacion,configuracionPines.mode));
 }
 
-void IniciarPines(){                        //Ciclo for para seleccionar los pines que se usaran como salida
+void IniciarPinesActivacionEncoder(){                        //Ciclo for para seleccionar los pines que se usaran como salida
     for (int i =0; i<=3; i++){               
         DireccionPines(matrix_ptr_encoders[i]);
     }
@@ -362,7 +367,7 @@ const uint8_t STATUSENCODER=0x0B;
 
 int LeerEstadoAS5600 (struct Encoder *Pedal){
 //Para leer el valor del estado del encoder aka AS5600 es nesesario usar la comunicación i2c
-char Estado[3][30]={"No se detecto imán","Imán demasiado cerca","Imán demasiado lejos"};
+const char Estado[3][30]={"No se detecto imán","Imán demasiado cerca","Imán demasiado lejos"};
 unsigned char valorRegistro;
 
 i2c_lectura(ADDR,STATUSENCODER,&valorRegistro,1); //Se lee el registro que contiene el status del encoder y se guarda en la variable valorRegistro

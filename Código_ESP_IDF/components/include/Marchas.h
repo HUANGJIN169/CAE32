@@ -1,7 +1,9 @@
 
-void IniciarPinesMarchas(unsigned char Velocidades[6]);
+void IniciarPinesMarchas(unsigned int  Pines[6] );
 
-void ImprimirVelocidadActual(unsigned char *VelocidadActal);
+void ImprimirVelocidadActual(short int VelocidadActal);
 /*----------------------------Tareas a ejecutar constantemente--------------------------------*/
-void LecturaMarcha(unsigned char Velocidades[6],unsigned char *VelocidadActual);
+void LecturaMarcha(short int *VelocidadActual);
 /*---------------------------------------------------------------------------------------------*/
+extern unsigned int Marchas[6];
+extern short int Velocidad;

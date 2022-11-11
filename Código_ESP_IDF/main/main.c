@@ -7,16 +7,20 @@
 #include "freertos/queue.h"
 #include "Encoders.h"
 #include "Marchas.h"
-void app_main() {
+#include "ComunicacionUSB.h"
 
-IniciarAsignacionMemoria();
+void iniciacion(){
+IniciarAsignacionMemoriaEncoder();
 InicializacionPedalesVolante();
-CalcularValorMapeado(ptr_acelerador);
-
 i2c_Master_Inicio();
-IniciarPines();
-ActivarODesactivarEncoder(ptr_acelerador,1);
+IniciarPinesActivacionEncoder();
+//IniciarPinesMarchas(Marchas);
 IniciarPinConfiguracion();
+}
+
+
+void app_main() {
+iniciacion();
 CalibracionEncoder(ptr_acelerador);
 
 
@@ -27,8 +31,14 @@ while (1)
     CalcularValorMapeado(ptr_acelerador);
     vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
     printf("Valor mapeado: %d\n",ptr_acelerador->ValorMapeado);
-}
 
+ /*   LecturaMarcha(&Velocidad);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
+    ImprimirVelocidadActual(Velocidad);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
+}*/
+
+}
 }
 
 

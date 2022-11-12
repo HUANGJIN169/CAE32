@@ -8,35 +8,41 @@
 #include "Encoders.h"
 #include "Marchas.h"
 #include "ComunicacionUSB.h"
+#include "Tareas.h"
+#define TAG "main"
 
 void iniciacion(){
-IniciarAsignacionMemoriaEncoder();
-InicializacionPedalesVolante();
-i2c_Master_Inicio();
-IniciarPinesActivacionEncoder();
-//IniciarPinesMarchas(Marchas);
-IniciarPinConfiguracion();
+//IniciarAsignacionMemoriaEncoder();
+//InicializacionPedalesVolante();
+//i2c_Master_Inicio();
+//IniciarPinesActivacionEncoder();
+IniciarPinesMarchas(Marchas);
+//IniciarPinConfiguracion();
 }
 
 
 void app_main() {
 iniciacion();
-CalibracionEncoder(ptr_acelerador);
-
-
+//CalibracionEncoder(ptr_acelerador);
 while (1)
 {
+    /*limpiartrama(datos);
+    LecturaMarcha(&Velocidad);
     LeerValorBrutoADC(ptr_acelerador);
     vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
     CalcularValorMapeado(ptr_acelerador);
     vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
-    printf("Valor mapeado: %d\n",ptr_acelerador->ValorMapeado);
+    //ESP_LOGI(TAG,"Valor mapeado: %d\n",ptr_acelerador->ValorMapeado);
+    UnionDeTrama(datos,&Velocidad);
+    EnvioDatosUSB(datos);
+    
+    ImprimirVelocidadActual(&Velocidad);
+ */
+    LecturaMarcha(&Velocidad);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
+    ImprimirVelocidadActual(&Velocidad);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
 
- /*   LecturaMarcha(&Velocidad);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
-    ImprimirVelocidadActual(Velocidad);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
-}*/
 
 }
 }

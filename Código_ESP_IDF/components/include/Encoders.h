@@ -30,9 +30,10 @@ extern struct Encoder *ptr_freno;
 extern struct Encoder *ptr_clutch;
 extern struct Encoder *ptr_volante;
 
+extern struct Encoder *matrix_ptr_encoders[4];
 
 //<<<<<<<<<<<<<<<<<<<ADC>>>>>>>>>>>>>>>>>>>>
-void imprimirValoresEncoder(struct Encoder *Pedal);     //Imprime toda la iformacion de un encoder 
+void imprimirValoresEncoder(struct Encoder *Pedal);     //Imprime toda la informacion de un encoder 
 void IniciarAsignacionMemoriaEncoder();                        //Asigna memoria dinamica a cada estructura de cada pedal
 void InicializacionCanalADC (struct Encoder *Pedal1);   //Carga valores de configuracion a los diferentes canales como resolucion y atenuacion 
 void InicializacionPedalesVolante();                    //Carga la configuracion anterior a cada pedal 

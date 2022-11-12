@@ -10,16 +10,22 @@
 
 #include "Marchas.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
 
-const unsigned int Primera=25;     /*Pines que corresponden con una marcha*/
-const unsigned int Segunda=26;
-const unsigned int Tercera=27;
-const unsigned int Cuarta=14;
-const unsigned int Quinta=12;
-const unsigned int Sexta=13;
 
-unsigned int Marchas[6]={Primera,Segunda,Tercera,Cuarta,Quinta,Sexta};    //Matrix para iterar el numero de pin y añadirlo como entrada y leer su nivel
-short int Velocidad=0;   
+
+
+const unsigned int PRIMERA=25;     /*Pines que corresponden con una marcha*/
+const unsigned int SEGUNDA=26;
+const unsigned int TERCERA=27;
+const unsigned int CUARTA=14;
+const unsigned int QUINTA=12;
+const unsigned int SEXTA=13;
+
+
+
+unsigned int Marchas[6]={PRIMERA,SEGUNDA,TERCERA,CUARTA,QUINTA,SEXTA};     //Matrix para iterar el numero de pin y añadirlo como entrada y leer su nivel
+short int Velocidad=0;                                                     //Se almacena un numero que coincide con la marcha igual exeptuando neutral que equivale a "0"  
 
 
 void IniciarPinesMarchas(unsigned int  Pines[6] ){                         //Se declaran los pines como salida
@@ -32,25 +38,25 @@ void IniciarPinesMarchas(unsigned int  Pines[6] ){                         //Se 
 }
 //La lectura se podría realizar con interrupciones
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-void LecturaMarcha(short int *VelocidadActual){//Se lee el nivel de cada pin si alguno se encuentra en alto lo guarda en la variable marcha
+void LecturaMarcha(short int *VelocidadActual){                             //Se lee el nivel de cada pin si alguno se encuentra en alto lo guarda en la variable marcha
     unsigned char Marcha=0;
 
     for (unsigned int i = 0; i <=6 ; i++)
     {
 
-        if (gpio_get_level(Marchas[i])==1){//Si encuentra un pin en alto carga el index del pin, al valor de la marcha
-            *VelocidadActual=Marcha+1;     //que se obtuvo usando un contador y se le suma 1 debido que C empieza a contar desde 0
+        if (gpio_get_level(Marchas[i])==1){                                 //Si encuentra un pin en alto carga el index del pin, al valor de la marcha
+            *VelocidadActual=Marcha+1;                                      //que se obtuvo usando un contador y se le suma 1 debido que C empieza a contar desde 0
             break;
     }   
     Marcha++;
     }
-   if(*VelocidadActual>6){ //si no se encuentra nungun pin en alto la variable marcha cuenta hasta 7,
-    *VelocidadActual=0;//significando que no esta acoplada ninguna marcha lo que equivale a neutral
+   if(*VelocidadActual>6){                                                  //si no se encuentra nungun pin en alto la variable marcha cuenta hasta 7,
+    *VelocidadActual=0;                                                     //significando que no esta acoplada ninguna marcha lo que equivale a neutral
    } 
 }
 
-void ImprimirVelocidadActual(short int VelocidadActual){
+void ImprimirVelocidadActual(short int *VelocidadActual){
     char nombreVelocidad[7][10]={"Neutral","Primera","Segunda","Tercera","Cuarta","Quinta","Sexta"};
-    printf("La marcha actual esta en %s con el numero %d\n",nombreVelocidad[VelocidadActual],VelocidadActual);
+   printf("La marcha actual esta en %s con el numero %d\n",nombreVelocidad[*VelocidadActual],*VelocidadActual);
 
 }

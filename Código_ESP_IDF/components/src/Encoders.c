@@ -136,6 +136,7 @@ matrix_ptr_encoders[3]=ptr_clutch;
 }
 
 
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<------->>>>>>>>>>>>>>>>>>>>>>>>
 
 
 /*<<<<<<<<<<<<<<<<<<<<Declaración de handles ADC>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -157,13 +158,19 @@ adc_oneshot_chan_cfg_t configuracion ={
 void InicializacionCanalADC (struct Encoder *Pedal1){
     ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle_general,Pedal1->CanalADC,&configuracion));
     ESP_ERROR_CHECK(adc_oneshot_channel_to_io(inicializacionConfig.unit_id,Pedal1->CanalADC,&Pedal1->PinADC));
-    //printf("El canal %d corresponde al pin %d del %s\n",Pedal1->CanalADC,Pedal1->PinADC,Pedal1->TPedal);
     }
 
 
 
+void InicializacionPedalesVolante(){
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&inicializacionConfig, &adc_handle_general));
+    for (int i=0; i<=3; i++){               //Ciclo para iniciar la configuracion del ADC a todos los canales (pines) 
+        InicializacionCanalADC(matrix_ptr_encoders[i]);
+        }
+}
 void LeerValorBrutoADC (struct Encoder *Pedal){ //En base del canal de la estructura, ejecuta una lectura y lo guarda en su estructura
     ESP_ERROR_CHECK(adc_oneshot_read(adc_handle_general,Pedal->CanalADC,&Pedal->ValorBrutoADC));
+    //Cambiar por adc continuos read
 }
 
 
@@ -177,7 +184,7 @@ void imprimirValoresEncoder(struct Encoder *Pedal){ //imprime todos las variable
 
 void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a la estructura que servira para ser enviada por usb
     if (Pedal->ValorBrutoADC<=0||Pedal->ValorBrutoADC>=2047){
-        printf("[ERROR]\tValor fuera de rango\n");
+        ESP_LOGE("[ERROR]","Valor fuera de rango\n");
     } 
     else{
     Pedal->ValorMapeado=((float)Pedal->ResolucionBits/2048.0)*Pedal->ValorBrutoADC;
@@ -185,12 +192,6 @@ void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a l
 }
 
 
-void InicializacionPedalesVolante(){
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&inicializacionConfig, &adc_handle_general));
-    for (int i=0; i<=3; i++){               //Ciclo para iniciar la configuracion del ADC a todos los canales (pines) 
-        InicializacionCanalADC(matrix_ptr_encoders[i]);
-    }
-}
 /*======================================================================*/
 //     _    ___    ____ 
 //    / \  |  _ \ / ___|
@@ -208,8 +209,10 @@ void InicializacionPedalesVolante(){
 // | |_| |  __/| | |_| |    El plan es tener un transistor que desconecte el scl de los demas encoders que no se esten programando
 //  \____|_|  |___\___/     Los pines de activación se encuentran en el la estructura Encoder 
 /*======================================================================*/
+
+
 #include "driver/gpio.h"
-const unsigned int PinBoton=13; //Pin para confirmar acciones
+const unsigned int PinBoton=17; //Pin para confirmar acciones
 
 // Declaracion de configuracion de pines//
 gpio_config_t configuracionPines={
@@ -257,6 +260,7 @@ void ActivarODesactivarEncoder(struct Encoder *Pedal,uint8_t estado){ //Habilita
 
 void IniciarPinConfiguracion(){ //Este pin tiene la utilidad de servir como boton de confirmación en diferentes procesos
     ESP_ERROR_CHECK(gpio_set_direction(PinBoton,GPIO_MODE_INPUT));
+    gpio_set_pull_mode(PinBoton,GPIO_PULLDOWN_ONLY);
 }
 
 /*======================================================================*/
@@ -365,32 +369,32 @@ const uint8_t STATUSENCODER=0x0B;
 
 
 
-int LeerEstadoAS5600 (struct Encoder *Pedal){
 //Para leer el valor del estado del encoder aka AS5600 es nesesario usar la comunicación i2c
-const char Estado[3][30]={"No se detecto imán","Imán demasiado cerca","Imán demasiado lejos"};
+int LeerEstadoAS5600 (struct Encoder *Pedal){
+const char Estado[3][30]={"No se detecto imán","Imán demasiado cerca","Imán demasiado lejos"};//Mensajes que se muestran cuando existe algun error
 unsigned char valorRegistro;
 
 i2c_lectura(ADDR,STATUSENCODER,&valorRegistro,1); //Se lee el registro que contiene el status del encoder y se guarda en la variable valorRegistro
 valorRegistro=valorRegistro<<2; //Se hace una manipulación de bits para solo evaluar los bits que nos interesan representados con (-) ejemplo (0b**---***) 
 valorRegistro=valorRegistro>>5;
 
-switch (valorRegistro) // se compara el valorRegistro con el valor mostrado en la hoja de datos 
+switch (valorRegistro) // Se compara el valorRegistro con el valor mostrado en la hoja de datos 
 {
 case 0b000:     
-    printf("[ERROR]\t%s \n",Estado[0]);
+    ESP_LOGE("[ERROR]","%s \n",Estado[0]);
     return -1;
     break;
 case 0b100: 
-    printf("[ERROR]\t%s \n",Estado[1]);
+    ESP_LOGE("[ERROR]","%s \n",Estado[1]);
     return -2;
     break;
 case 0b010:
-    printf("[ERROR]\t%s \n",Estado[2]);
+    ESP_LOGE("[ERROR]","%s \n",Estado[2]);
     return -3;
     break;
 
 default:
-    printf("[OK]\tEl Encoder :%s, Imán correctamente posicionado\n",Pedal->TPedal);
+    ESP_LOGI("[OK]","%s, Imán correctamente posicionado\n",Pedal->TPedal);
     return 0;
     break;
 }
@@ -409,7 +413,7 @@ void CalcularRangoMovimiento(struct Encoder *Pedal){ //Calcula cuantos grados de
     Pedal->GradosDeGiro=Grados[0]+Grados[1];
     i2c_escritura(ADDR,ZPOS_L,Pedal->ValorFinal[1]);
     i2c_escritura(ADDR,ZPOS_M,Pedal->ValorFinal[0]);
-    i2c_escritura(ADDR,MPOS_L,Pedal->ValorInicial[0]);
+    i2c_escritura(ADDR,MPOS_L,Pedal->ValorInicial[1]);
     i2c_escritura(ADDR,MPOS_M,Pedal->ValorInicial[0]);
     i2c_escritura(ADDR,MANG_L,Grados[1]);
     i2c_escritura(ADDR,MANG_M,Grados[0]);
@@ -428,25 +432,25 @@ void CargaDePosiciones(struct Encoder *Pedal){
     
     i2c_escritura(ADDR,ZPOS_L,Pedal->ValorFinal[1]);
     i2c_escritura(ADDR,ZPOS_M,Pedal->ValorFinal[0]);
-    i2c_escritura(ADDR,MPOS_L,Pedal->ValorInicial[0]);
+    i2c_escritura(ADDR,MPOS_L,Pedal->ValorInicial[1]);
     i2c_escritura(ADDR,MPOS_M,Pedal->ValorInicial[0]);
 
 
 }
 
 int CalibracionEncoder(struct Encoder *Pedal){ //Con esta funcion se calibran los topes fisícos de cada Encoder exeptuando el Volante
-    printf("Intentando calibrar el encoder identificado como %s\n",Pedal->TPedal);
+    ESP_LOGI("I","Intentando calibrar el encoder identificado como %s\n",Pedal->TPedal);
     
     //Primero hay que comprobar el estado del encoder, ya que es necesario que este tenga el íman colocado, si no se encuentra no tiene sentido continuar con la calibracion
     if (LeerEstadoAS5600(Pedal)<0){
-        printf("No se logro calibrar el encoder, por un error en la posicion del imán\n");
+        ESP_LOGE("ERROR","No se logro calibrar el encoder, por un error en la posicion del imán\n");
         return -1;
     }
     //----------------------------------------------------------------------------
 
     //Se capturan los datos del encoder en la posicion inicial y final para despues configurar el maximo angulo de acción en el encoder y aprobechar la maxima resolución
 
-    printf("Presiona o mueve el pedal hasta la posicion final (a fondo) y presiona el Botón de configuración\n");
+    ESP_LOGI("I","Presiona o mueve el pedal hasta la posicion final (a fondo) y presiona el Botón de configuración\n");
 
 do
 {
@@ -459,7 +463,7 @@ do
 
     vTaskDelay(500 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
 
-    printf("Suelta o mueve el pedal hasta la posicion inicial (en reposo) y presiona el Botón de configuración\n");
+    ESP_LOGI("I","Suelta o mueve el pedal hasta la posicion inicial (en reposo) y presiona el Botón de configuración\n");
 do
 {
     

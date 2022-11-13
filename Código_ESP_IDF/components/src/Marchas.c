@@ -15,12 +15,12 @@
 
 
 
-const unsigned int PRIMERA=25;     /*Pines que corresponden con una marcha*/
-const unsigned int SEGUNDA=26;
-const unsigned int TERCERA=27;
-const unsigned int CUARTA=14;
-const unsigned int QUINTA=12;
-const unsigned int SEXTA=13;
+const unsigned int PRIMERA=19;     /*Pines que corresponden con una marcha*/
+const unsigned int SEGUNDA=18;
+const unsigned int TERCERA=5;
+const unsigned int CUARTA=17;
+const unsigned int QUINTA=16;
+const unsigned int SEXTA=4;
 
 
 
@@ -30,7 +30,7 @@ short int Velocidad=0;                                                     //Se 
 
 void IniciarPinesMarchas(unsigned int  Pines[6] ){                         //Se declaran los pines como salida
     
-    for (int i = 0; i <=6 ; i++){
+    for (int i = 0; i <=5 ; i++){
     gpio_set_direction(Pines[i],GPIO_MODE_INPUT);
     gpio_set_pull_mode(Pines[i],GPIO_PULLDOWN_ONLY);
     }

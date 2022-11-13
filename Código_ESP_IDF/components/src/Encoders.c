@@ -184,7 +184,7 @@ void imprimirValoresEncoder(struct Encoder *Pedal){ //imprime todos las variable
 
 void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a la estructura que servira para ser enviada por usb
     if (Pedal->ValorBrutoADC<=0||Pedal->ValorBrutoADC>=2047){
-        ESP_LOGE("[ERROR]","Valor fuera de rango\n");
+       // ESP_LOGE("[ERROR]","Valor fuera de rango\n");
     } 
     else{
     Pedal->ValorMapeado=((float)Pedal->ResolucionBits/2048.0)*Pedal->ValorBrutoADC;
@@ -212,7 +212,7 @@ void CalcularValorMapeado(struct Encoder *Pedal){ //Carga el valor calculado a l
 
 
 #include "driver/gpio.h"
-const unsigned int PinBoton=17; //Pin para confirmar acciones
+const unsigned int PinBoton=13; //Pin para confirmar acciones
 
 // Declaracion de configuracion de pines//
 gpio_config_t configuracionPines={
@@ -473,6 +473,9 @@ do
 
 } while (gpio_get_level(PinBoton)==0);
     //------------------------------------------------------------------------------
+    //*****************Importante****************************************************
+    //Es necesario grabar estos valores recien capturados en la eemprom o nvm para que no sea necesario calibrar cada vez que se inicia 
+    //
     //----------------------------------------------------------------------------
     CalcularRangoMovimiento(Pedal); //Calcula cuantos grados de movimento tiene un pedal 0°-360° y >360, tambien depende del sentido en el que se gira se puede configurar con el pin <DIR> del encoder
     imprimirValoresEncoder(Pedal);

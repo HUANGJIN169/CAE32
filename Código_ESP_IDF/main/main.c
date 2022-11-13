@@ -12,21 +12,40 @@
 #define TAG "main"
 
 void iniciacion(){
-//IniciarAsignacionMemoriaEncoder();
-//InicializacionPedalesVolante();
-//i2c_Master_Inicio();
-//IniciarPinesActivacionEncoder();
+IniciarAsignacionMemoriaEncoder();
+InicializacionPedalesVolante();
+i2c_Master_Inicio();
+IniciarPinesActivacionEncoder();
 IniciarPinesMarchas(Marchas);
-//IniciarPinConfiguracion();
+IniciarPinConfiguracion();
 }
 
 
 void app_main() {
 iniciacion();
-//CalibracionEncoder(ptr_acelerador);
+xTaskCreate(vTareaLeerValorBruto,"Lectura",2000,(void *)ptr_acelerador,1,NULL);
+
+xTaskCreate(vTareaLeerMarcha,"Lectura_M",1000,(void *)Velocidad,1,NULL);
+
+xTaskCreate(vTareaCalcularValor,"calculo",2000,(void *)ptr_acelerador,3,NULL);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*CalibracionEncoder(ptr_acelerador);
 while (1)
 {
-    /*limpiartrama(datos);
+    limpiartrama(datos);
     LecturaMarcha(&Velocidad);
     LeerValorBrutoADC(ptr_acelerador);
     vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
@@ -37,7 +56,7 @@ while (1)
     EnvioDatosUSB(datos);
     
     ImprimirVelocidadActual(&Velocidad);
- */
+ 
     LecturaMarcha(&Velocidad);
     vTaskDelay(1000 / portTICK_PERIOD_MS);//Contraresta el debounce propio del boton
     ImprimirVelocidadActual(&Velocidad);
@@ -45,6 +64,7 @@ while (1)
 
 
 }
+*/
 }
 
 

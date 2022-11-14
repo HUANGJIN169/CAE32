@@ -1,15 +1,11 @@
 #include <gtk-3.0/gtk/gtk.h>
 
-static void
-print_hello (GtkWidget *widget,
-             gpointer   data)
+static void print_hello (GtkWidget *widget, gpointer   data)
 {
-  g_print ("Hello World\n");
+  g_print ("Una vez me caí de chiquito\n");
 }
 
-static void
-activate (GtkApplication *app,
-          gpointer        user_data)
+static void activate (GtkApplication *app, gpointer user_data)
 {
   GtkWidget *window;
   GtkWidget *grid;
@@ -17,8 +13,9 @@ activate (GtkApplication *app,
 
   /* create a new window, and set its title */
   window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Window");
+  gtk_window_set_title (GTK_WINDOW (window), "(o.o)");
   gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+  gtk_window_set_default_size (GTK_WINDOW(window),300,300);
 
   /* Here we construct the container that is going pack our buttons */
   grid = gtk_grid_new ();

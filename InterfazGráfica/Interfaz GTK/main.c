@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-static void aumentarvalor(GtkWidget *widget,gpointer data);
+//static void aumentarvalor(GtkWidget *widget,gpointer data);
 
 int main (int argc, char *argv[]){
 GtkBuilder *constructor;
@@ -21,15 +21,16 @@ ventana=gtk_builder_get_object(constructor,"ventana");
 g_signal_connect (ventana,"destroy",G_CALLBACK(gtk_main_quit),NULL);
 
 barra_progreso=gtk_builder_get_object(constructor,"valor_acelerador");
-g_signal_connect_object (boton,"clicked",G_CALLBACK(aumentarvalor),barra_progreso,G_CONNECT_AFTER);
+//g_signal_connect_object (boton,"clicked",G_CALLBACK(aumentarvalor),barra_progreso,G_CONNECT_AFTER);
+g_signal_connect_swapped (boton,"clicked",G_CALLBACK (gtk_progress_bar_set_fraction(data,0.5)),barra_progreso);
 gtk_main();
 return 0;
 }
 
 
-static void aumentarvalor(GtkWidget *widget,gpointer data){
+/*static void aumentarvalor(GtkWidget *widget,gpointer data){
 g_print("funciona \n");
 gtk_progress_bar_set_fraction(data,0.5);
 }
-
+*/
 

@@ -284,7 +284,8 @@ El string descriptor contiene una lista de texto para el dispositivo
 
 Este ejemplo muestra como se acomodan los bit en base al report descriptor
 
-` Report size (3)
+```
+Report size (3)
 
 Report count (2)
 
@@ -294,7 +295,8 @@ Report size (8)
 
 Input
 
-Output `
+Output 
+```
 
 * Lo que entiendo es que todos los reportes se toman como items globales
 * Y se "sobreescriben" dependiendo del orden en que estos se encuentran acomodados
@@ -306,11 +308,13 @@ Output `
 
 Comportamiento del ejemplo
 
-` Report size (3)
+```
+Report size (3)
 
 Report count (2)
 
-Input `
+Input 
+```
 
 1. Asigna dos campos de entrada con un tamaño de 3 bits
 
@@ -321,13 +325,15 @@ Input `
 **Esto es equivalente a realizar esta acción con los siguientes tipos de datos**
  
 
-` Report count (2)
+```
+Report count (2)
 
 Report size (8)
 
 Input
 
-Output `
+Output 
+```
 
 3. Asigna dos campos, proveniente de la segunda linea además de asignar una de entrada y salida 
 de salida con un tamaño de 8 bits

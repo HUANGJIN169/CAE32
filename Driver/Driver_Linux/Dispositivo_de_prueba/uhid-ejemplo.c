@@ -111,7 +111,7 @@
 
 static unsigned char rdesc[] = {
 	0x05, 0x01,	/* USAGE_PAGE (Generic Desktop) */
-	0x09, 0x02,	/* USAGE (Mouse) */
+	0x09, 0x04,	/* USAGE (Mouse) */
 	0xa1, 0x01,	/* COLLECTION (Application) */
 	0x09, 0x01,		/* USAGE (Pointer) */
 	0xa1, 0x00,		/* COLLECTION (Physical) */

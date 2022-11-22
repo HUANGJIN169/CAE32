@@ -1,5 +1,10 @@
 # Device Class Definition for Human Interface Devices (HID) Version1.11
 
+### Enlaces de información 
+
+[Device Class Definition for Human Interface Devices (HID) Version1.11](https://www.usb.org/sites/default/files/hid1_11.pdf)
+[HID Usage Tables FOR Universal Serial Bus (USB)](https://usb.org/sites/default/files/hut1_3_0.pdf)
+
 - Debido a que es muy extenso la documentación relacioanad al descriptor de un dispositivo 
 de interfaz humana, tomaré nota de cada tema y llenare los huecos tomando como ejemplo a CAE32
 
@@ -90,7 +95,9 @@ diferencia de 102 se toma como una vuelta completa.
 
 El espacio en bits requeridos para el HID 
  
-* 8 bits para la palanca de cambios | 1 bit por cada velocidad
+* 8 bits para la palanca de cambios | 1 bit por cada velocidad o 3 bits, reprentando el valor de la marcha en
+binario **Ejemplo** Primera=0x001, Quinta=0x101, Ocatava=0x111 etc
+
 * 32 bits para pedales y volante | 8 bits por cada pedal o volante 
 
 
@@ -299,7 +306,7 @@ Output
 ```
 
 * Lo que entiendo es que todos los reportes se toman como items globales
-* Y se "sobreescriben" dependiendo del orden en que estos se encuentran acomodados
+* Se "sobreescriben" dependiendo del orden en que estos se encuentran acomodados
 
 
 * Report size: se identifica como el tamaño de bits
@@ -337,6 +344,113 @@ Output
 
 3. Asigna dos campos, proveniente de la segunda linea además de asignar una de entrada y salida 
 de salida con un tamaño de 8 bits
+
+
+Un reporte de descriptor puede contener muchos main items
+
+Un reporte de descriptor debe incluir cada uno de los siguientes items para describit el control de los datos
+(todos los demas items son opcionales)
+
+- Input(Output or Feature)
+- Usage
+- Usage Page
+- Logical Minimum
+- Logical Maximum
+- Report Size
+- Report Count
+
+**Ejemplo** Los siguiente items son usados para definir un mouse con tres botones, en este caso, todos los main
+items son precedentes de los items globales como "usage,report count or report size" (cada linea es un nuevo item
+
+```
+Usage Page (Generic Desktop), ;Use the Generic Desktop Usage Page
+Usage (Mouse),
+	Collection (Application), ;Start Mouse collection
+	Usage (Pointer),
+	Collection (Physical), ;Start Pointer collection
+		Usage Page (Buttons)
+		Usage Minimum (1),
+		Usage Maximum (3),
+		Logical Minimum (0),
+		Logical Maximum (1), ;Fields return values from 0 to 1
+		Report Count (3),
+		Report Size (1), ;Create three 1 bit fields (button 1, 2, & 3)
+		Input (Data, Variable, Absolute), ;Add fields to the input report.
+		Report Count (1),
+		Report Size (5), ;Create 5 bit constant field
+		Input (Constant), ;Add field to the input report
+		Usage Page (Generic Desktop),
+		Usage (X),
+		Usage (Y),
+		Logical Minimum (-127),
+		Logical Maximum (127), ;Fields return values from -127 to 127
+		Report Size (8),
+		Report Count (2), ;Create two 8 bit fields (X & Y position)
+		Input (Data, Variable, Relative), ;Add fields to the input report
+End Collection, ;Close Pointer collection
+End Collection ;Close Mouse collection
+```
+
+### Comprobación y análisis del ejemplo en uhid.c
+
+```
+ static unsigned char rdesc[] = {
+         0x05, 0x01,     /* USAGE_PAGE (Generic Desktop) */
+         0x09, 0x02,     /* USAGE (Mouse) */
+         0xa1, 0x01,     /* COLLECTION (Application) */
+         0x09, 0x01,             /* USAGE (Pointer) */
+         0xa1, 0x00,             /* COLLECTION (Physical) */
+         0x85, 0x01,                     /* REPORT_ID (1) */
+         0x05, 0x09,                     /* USAGE_PAGE (Button) */
+         0x19, 0x01,                     /* USAGE_MINIMUM (Button 1) */
+         0x29, 0x03,                     /* USAGE_MAXIMUM (Button 3) */
+         0x15, 0x00,                     /* LOGICAL_MINIMUM (0) */
+         0x25, 0x01,                     /* LOGICAL_MAXIMUM (1) */
+         0x95, 0x03,                     /* REPORT_COUNT (3) */
+         0x75, 0x01,                     /* REPORT_SIZE (1) */
+         0x81, 0x02,                     /* INPUT (Data,Var,Abs) */
+         0x95, 0x01,                     /* REPORT_COUNT (1) */
+         0x75, 0x05,                     /* REPORT_SIZE (5) */
+         0x81, 0x01,                     /* INPUT (Cnst,Var,Abs) */
+         0x05, 0x01,                     /* USAGE_PAGE (Generic Desktop) */
+         0x09, 0x30,                     /* USAGE (X) */
+         0x09, 0x31,                     /* USAGE (Y) */
+         0x09, 0x38,                     /* USAGE (WHEEL) */
+         0x15, 0x81,                     /* LOGICAL_MINIMUM (-127) */
+         0x25, 0x7f,                     /* LOGICAL_MAXIMUM (127) */
+         0x75, 0x08,                     /* REPORT_SIZE (8) */
+         0x95, 0x03,                     /* REPORT_COUNT (3) */
+         0x81, 0x06,                     /* INPUT (Data,Var,Rel) */
+         0xc0,                   /* END_COLLECTION */
+         0xc0,           /* END_COLLECTION */
+         0x05, 0x01,     /* USAGE_PAGE (Generic Desktop) */
+         0x09, 0x06,     /* USAGE (Keyboard) */
+         0xa1, 0x01,     /* COLLECTION (Application) */
+         0x85, 0x02,             /* REPORT_ID (2) */
+         0x05, 0x08,             /* USAGE_PAGE (Led) */
+         0x19, 0x01,             /* USAGE_MINIMUM (1) */
+         0x29, 0x03,             /* USAGE_MAXIMUM (3) */
+         0x15, 0x00,             /* LOGICAL_MINIMUM (0) */
+         0x25, 0x01,             /* LOGICAL_MAXIMUM (1) */
+         0x95, 0x03,             /* REPORT_COUNT (3) */
+         0x75, 0x01,             /* REPORT_SIZE (1) */
+         0x91, 0x02,             /* Output (Data,Var,Abs) */
+         0x95, 0x01,             /* REPORT_COUNT (1) */
+         0x75, 0x05,             /* REPORT_SIZE (5) */
+         0x91, 0x01,             /* Output (Cnst,Var,Abs) */
+         0xc0,           /* END_COLLECTION */
+};
+```
+Para enteder el descriptor es bastante sencillo en caso de que todos seán "short items", 
+ya que estos tienen un rango de 0 a 4 bytes de longitud 
+
+Aunque por el momento no entiendo completamente cuando hay que usar las colecciones
+
+Lo que se dice en la documentación es prestar especial atención al tipo de item,
+ya que subsecuentemente sigue el dato
+
+En el ejemplo de se ve obvserva como se escribe en mayuscula el tipo de 
+item seguido de su valor entre parentesis
 
 
 

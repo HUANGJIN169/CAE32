@@ -123,7 +123,7 @@ static unsigned char rdesc[] = {
 	0x25, 0x01,			/* LOGICAL_MAXIMUM (1) */
 	0x95, 0x08,			/* REPORT_COUNT (3) */
 	0x75, 0x01,			/* REPORT_SIZE (1) */
-	0x81, 0x02,		/* INPUT (Data,Var,Abs) */
+	0x81, 0x02,			/* INPUT (Data,Var,Abs) */
 //	0x95, 0x01,			/* REPORT_COUNT (1) */
 //	0x75, 0x05,			/* REPORT_SIZE (5) */
 //	0x81, 0x01,			/* INPUT (Cnst,Var,Abs) */
@@ -139,7 +139,7 @@ static unsigned char rdesc[] = {
 	0x45, 0xc8,
 	0x75, 0x08,			/* REPORT_SIZE (8) */
 	0x95, 0x04,			/* REPORT_COUNT (3) */
-	0x81, 0x02,			/* INPUT (Data,Var,Rel) */
+	0x82, 0x02,0x01,			/* INPUT (Data,Var,Rel) */
 	0xc0			/* END_COLLECTION */
 //	0xc0,		/* END_COLLECTION */
 //	0x05, 0x01,	/* USAGE_PAGE (Generic Desktop) */
@@ -182,17 +182,15 @@ static int create(int fd)
 	struct uhid_event ev;
 
 	memset(&ev, 0, sizeof(ev));
-	ev.type = UHID_CREATE2;
-	strcpy((char*)ev.u.create2.name, "Steering Wheel CAE32");
-	//ev.u.create.rd_data = rdesc;
-	//ev.u.create2.rd_data[sizeof(rdesc)];
-	memcpy(ev.u.create2.rd_data,rdesc,sizeof(rdesc));
-	ev.u.create2.rd_size = sizeof(rdesc);
-	ev.u.create2.bus = BUS_USB;
-	ev.u.create2.vendor = 0x15d9;
-	ev.u.create2.product = 0x0a37;
-	ev.u.create2.version = 0;
-	ev.u.create2.country = 0;
+	ev.type = UHID_CREATE;
+	strcpy((char*)ev.u.create.name, "Steering Wheel CAE32");
+	ev.u.create.rd_data = rdesc;
+	ev.u.create.rd_size = sizeof(rdesc);
+	ev.u.create.bus = BUS_USB;
+	ev.u.create.vendor = 0x15d9;
+	ev.u.create.product = 0x0a37;
+	ev.u.create.version = 0;
+	ev.u.create.country = 0;
 
 	return uhid_write(fd, &ev);
 }
@@ -277,8 +275,8 @@ static int event(int fd)
 static bool btn1_down;
 static bool btn2_down;
 static bool btn3_down;
-static char rel_hor;
-static char rel_ver;
+static char abs_hor;
+static char abs_ver;
 static char wheel;
 
 static int send_event(int fd)
@@ -286,20 +284,20 @@ static int send_event(int fd)
 	struct uhid_event ev;
 
 	memset(&ev, 0, sizeof(ev));
-	ev.type = UHID_INPUT2;
-	ev.u.input2.size =11; 
+	ev.type = UHID_INPUT;
+	ev.u.input.size = 11;
 
-	ev.u.input2.data[0] = 0x1;
+	ev.u.input.data[0] = 0x1;
 	if (btn1_down)
-		ev.u.input2.data[1] |= 0x1;
+		ev.u.input.data[1] |= 0x1;
 	if (btn2_down)
-		ev.u.input2.data[1] |= 0x2;
+		ev.u.input.data[1] |= 0x2;
 	if (btn3_down)
-		ev.u.input2.data[1] |= 0x4;
+		ev.u.input.data[1] |= 0x4;
 
-	ev.u.input2.data[2] = rel_hor;
-	ev.u.input2.data[3] = rel_ver;
-	ev.u.input2.data[4] = wheel;
+	ev.u.input.data[2] = abs_hor;
+	ev.u.input.data[3] = abs_ver;
+	ev.u.input.data[4] = wheel;
 
 	return uhid_write(fd, &ev);
 }
@@ -339,44 +337,44 @@ static int keyboard(int fd)
 				return ret;
 			break;
 		case 'a':
-			rel_hor--;
+			abs_hor=-10;
 			ret = send_event(fd);
 			//abs_hor = 0;
 			if (ret)
 				return ret;
 			break;
 		case 'd':
-			rel_hor++;
+			abs_hor=+20;
 			ret = send_event(fd);
 			//abs_hor = 0;
 			if (ret)
 				return ret;
 			break;
 		case 'w':
-			rel_ver++;
+			abs_ver = -20;
 			ret = send_event(fd);
 			//abs_ver = 0;
 			if (ret)
 				return ret;
 			break;
 		case 's':
-			rel_ver--;
+			abs_ver = 20;
 			ret = send_event(fd);
 			//abs_ver = 0;
 			if (ret)
 				return ret;
 			break;
 		case 'r':
-			wheel++;
+			wheel = 1;
 			ret = send_event(fd);
-			//wheel = 0;
+			wheel = 0;
 			if (ret)
 				return ret;
 			break;
 		case 'f':
-			wheel --;
+			wheel = -1;
 			ret = send_event(fd);
-			//wheel = 0;
+			wheel = 0;
 			if (ret)
 				return ret;
 			break;
@@ -423,8 +421,8 @@ int main(int argc, char **argv)
 	if (fd < 0) {
 		fprintf(stderr, "Cannot open uhid-cdev %s: %m\n", path);
 		return EXIT_FAILURE;
-	
-}
+	}
+
 	fprintf(stderr, "Create uhid device\n");
 	ret = create(fd);
 	if (ret) {

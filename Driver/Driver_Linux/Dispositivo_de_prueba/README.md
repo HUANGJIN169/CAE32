@@ -1,5 +1,8 @@
 # Device Class Definition for Human Interface Devices (HID) Version1.11
 
+**Si queres ver como fue el desarrollo del driver y herramientas, te recomiendo que veas este [archivo](Bitácora.md)**
+ 
+
 ### Enlaces de información 
 
 [Device Class Definition for Human Interface Devices (HID) Version1.11](https://www.usb.org/sites/default/files/hid1_11.pdf)

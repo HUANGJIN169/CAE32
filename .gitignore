@@ -5,4 +5,7 @@
 Código_ESP_IDF/build/
 Código_ESP_IDF/.vscode/
 Código_ESP_IDF/.devcontainer/
+Código_ESP_IDF/.cache/
+
 Documentacion CAE32/.obsidian/
+InterfazGráfica/Interfaz \GTK/build/

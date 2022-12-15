@@ -1,4 +1,6 @@
-#include "dispositivo.h"
+#include "device.h"
+#include "objectsGtk.h"
+#include "signals.h"
 #include <err.h>
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
@@ -6,42 +8,40 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
-int main(int argc, char *argv[]) {
-  GtkBuilder *constructor;
-  GObject *ventana;
-  GObject *boton;
-  GObject *etiqueta;
-  GObject *barra_acelerador;
-  GObject *barra_freno;
-  GObject *barra_clutch;
-  GObject *lista;
-  GError *error = NULL;
-  gtk_init(&argc, &argv);
 
+Device DeviceCae; // Struct with information about the device
+Device *p_DeviceCae = &DeviceCae;
+LevelBar indicators;
+LevelBar *p_indicators = &indicators;
+
+const char pathJoy[] = "/dev/input/js"; // Path to search the device if this is a joystick
+const char pathHID[] = "/dev/hidraw";   // Path to search the device if this is a HID
+
+ObjectsUI objects;
+int main(int argc, char *argv[]) {
+  ObjectsUI *p_objects = NULL;
+  GtkBuilder *constructor;
   constructor = gtk_builder_new();
-  if (gtk_builder_add_from_file(constructor, "../gladeFiles/UI1.glade",
-                                &error) == 0) {
+
+  p_objects = &objects;
+  p_indicators = g_malloc(sizeof(LevelBar));
+
+  gtk_init(&argc, &argv);
+  GError *error = NULL;
+  if (gtk_builder_add_from_file(constructor, "../gladeFiles/UI1.glade", &error) == 0) {
     g_printerr("Error no se encontro el archivo :%s \n", error->message);
     g_clear_error(&error);
     return 1;
   }
-  boton = gtk_builder_get_object(constructor, "boton_test");
-  ventana = gtk_builder_get_object(constructor, "ventana");
-  g_signal_connect(ventana, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-  // Barras que reacionan con el valor de entrada
-
-  barra_acelerador = gtk_builder_get_object(constructor, "valor_acelerador");
-  barra_freno = gtk_builder_get_object(constructor, "valor_freno");
-  barra_clutch = gtk_builder_get_object(constructor, "valor_clutch");
-
-  //---------------------------------------------
-
-  // Lista donde se muestra el dispositivo
-  lista = gtk_builder_get_object(constructor, "lista");
-  //-----------------------------------
-  get_device();
-
+  initObjects(constructor, p_objects);
+  // g_malloc(sizeof(ObjectsUI));
+  // p_objects = g_malloc(sizeof(ObjectsUI));
+  searchHIDDevice(pathHID, p_DeviceCae, true);
+  signalsConnection(p_objects);
+  CreateLevelBars(p_indicators);
+  g_signal_connect_swapped(p_objects->boton, "clicked", G_CALLBACK(updateLevelBarValue), (gpointer)p_indicators);
+  //  g_signal_connect_swapped(G_OBJECT(p_objects->boton), "clicked", G_CALLBACK(levelBarValue), (gpointer)p_objects);
   gtk_main();
   return 0;
 }

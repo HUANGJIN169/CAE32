@@ -1,30 +1,28 @@
 #include "device.h"
 #include "objectsGtk.h"
-#include "signals.h"
 #include <err.h>
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <poll.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
-
-Device DeviceCae; // Struct with information about the device
-Device *p_DeviceCae = &DeviceCae;
-LevelBar indicators;
-LevelBar *p_indicators = &indicators;
-
+#include <sys/poll.h>
+Device CAE32;
+ObjectsUI obj;
 const char pathJoy[] = "/dev/input/js"; // Path to search the device if this is a joystick
 const char pathHID[] = "/dev/hidraw";   // Path to search the device if this is a HID
 
-ObjectsUI objects;
 int main(int argc, char *argv[]) {
-  ObjectsUI *p_objects = NULL;
+  Device *p_CAE32 = g_malloc(sizeof(Device));
+  if (p_CAE32 != NULL) {
+    g_printerr("alocado\n");
+  }
   GtkBuilder *constructor;
+  p_CAE32 = &CAE32;
   constructor = gtk_builder_new();
-
-  p_objects = &objects;
-  p_indicators = g_malloc(sizeof(LevelBar));
 
   gtk_init(&argc, &argv);
   GError *error = NULL;
@@ -33,15 +31,16 @@ int main(int argc, char *argv[]) {
     g_clear_error(&error);
     return 1;
   }
+  initObjects(constructor, &obj);
+  signalsConnection(&obj);
 
-  initObjects(constructor, p_objects);
-  // g_malloc(sizeof(ObjectsUI));
-  // p_objects = g_malloc(sizeof(ObjectsUI));
-  searchHIDDevice(pathHID, p_DeviceCae, true);
-  signalsConnection(p_objects);
-  CreateLevelBars(p_indicators);
-  g_signal_connect_swapped(p_objects->boton, "clicked", G_CALLBACK(updateLevelBarValue), (gpointer)p_indicators);
-  //  g_signal_connect_swapped(G_OBJECT(p_objects->boton), "clicked", G_CALLBACK(levelBarValue), (gpointer)p_objects);
+  if (searchHIDDevice(pathHID, p_CAE32, true) >= 0) {
+    g_printerr("Monitoring device\n");
+    initpoll(p_CAE32);
+  } else {
+    // g_free(&CAE32);
+  }
   gtk_main();
+
   return 0;
 }

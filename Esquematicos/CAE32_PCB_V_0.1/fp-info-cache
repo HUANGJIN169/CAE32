@@ -1,4 +1,4 @@
-20636855413770257
+20643533823679671
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -2376,6 +2376,13 @@ Buzzer_Beeper
 Speaker_CUI_CMR-1206S-67
 Speaker, 30mW, 300-7000Hz, IP67 face, 12x6x2,25mm, https://www.cuidevices.com/product/resource/cmr-12062s-67.pdf
 speaker CUI
+0
+2
+2
+CAE
+UDD32
+
+SOD-323
 0
 2
 2
@@ -86638,6 +86645,27 @@ varistor
 0
 2
 2
+eec
+Analog_Devices-AD7788BRM-Level_A
+
+
+0
+10
+10
+eec
+Analog_Devices-AD7788BRM-Level_B
+
+
+0
+10
+10
+eec
+Analog_Devices-AD7788BRM-Level_C
+
+
+0
+10
+10
 zero
 AIP74HC4051
 SOP, 16 Pin (https://www.diodes.com/assets/Datasheets/PAM8403.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py

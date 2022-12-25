@@ -27,21 +27,8 @@ static unsigned char rdesc[] = {
     0x95, 0x05, /* report_count (3) */
     0x75, 0x08, /* report_size (1) */
     0x81, 0x02, /* input (data,var,abs) */
-                //	0x95, 0x01,			/* report_count (1) */
-                //	0x75, 0x05,			/* report_size (5) */
-                //	0x81, 0x01,			/* input (cnst,var,abs) */
-                //	0x85, 0x02,			/* report_id (1) */
-    // 0x05, 0x01,                         /* usage_page (generic desktop) */
-    // 0x09, 0x30,                         /* usage (x) */
-    // 0x09, 0x31,                         /* usage (y) */
-    // 0x09, 0x32,                         /* usage (wheel) */
-    // 0x09, 0x33, 0x15, 0x81,             /* logical_minimum (-127) */
-    // 0x25, 0x7f,                         /* logical_maximum (127) */
-    // 0x35, 0xc9, 0x45, 0xc8, 0x75, 0x08, /* report_size (8) */
-    // 0x95, 0x04,                         /* report_count (3) */
-    // 0x81, 0x02,                         /* input (data,var,rel) */
-    0xc0 /* end_collection */
-         //	0xc0,		/* end_collection */
+    0xc0        /* end_collection */
+                //	0xc0,		/* end_collection */
 };
 
 static int uhid_write(int fd, const struct uhid_event *ev) {
@@ -52,7 +39,7 @@ static int uhid_write(int fd, const struct uhid_event *ev) {
     fprintf(stderr, "cannot write to uhid: %m\n");
     return -errno;
   } else if (ret != sizeof(*ev)) {
-    fprintf(stderr, "wrong size written to uhid: %zd != %zu\n", ret, sizeof(ev));
+    fprintf(stderr, "wrong size written to uhid: %zd != %zu\n", ret, sizeof(*ev));
     return -EFAULT;
   } else {
     return 0;

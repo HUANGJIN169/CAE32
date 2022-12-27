@@ -15,6 +15,7 @@ para el sistema operativo de Linux.
 ## Descripción detallada
 
 ### Sensores
+
 **Nota:** Aún no se elige el número de pieza.
 
 * IC de efecto hall para los pedales
@@ -46,5 +47,6 @@ La interfaz está desarrollada con el framework (GTK 3), esta permitirá hacer c
 
 Diseño de interfaz hasta el momento.
 
+**Para compilar el proyecto las instruciones las puedes encontrar [aquí](InterfazGráfica/README.md)**
 
 ![interfaz](InterfazGráfica/Previa.png)

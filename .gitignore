@@ -7,6 +7,7 @@ Código_ESP_IDF/.vscode/
 Código_ESP_IDF/.devcontainer/
 Código_ESP_IDF/.cache/
 ideas/
+InterfazGráfica/Interfaz \GTK/Makefile
 InterfazGráfica/Interfaz \GTK/.cache/
 InterfazGráfica/Interfaz \GTK/cmake_install.cmake
 InterfazGráfica/Interfaz \GTK/CMakeCache.txt

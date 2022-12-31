@@ -1,11 +1,11 @@
 # CAE32
 
 CAE32 es un proyecto de construcción y desarrollo de todas las etapas de un volante para videojuegos de PC,
-para el sistema operativo de Linux.
+para el sistema operativo de GNU/Linux.
 
 ## Las etapas son:
 
-* Diseño PCB (Placa principal)
+* Diseño PCB
 * Firmware
 * Driver (Kernel module)
 * Configuración y calibración por medio de una interfaz de usuario (GTK-3)
@@ -14,18 +14,16 @@ para el sistema operativo de Linux.
 
 ## Descripción detallada
 
-### Sensores
-
-**Nota:** Aún no se elige el número de pieza.
-
-* IC de efecto hall para los pedales
-* IC de efecto hall para el volante como el AS5600 
-* Interruptores para la palanca de cambios
-
 ### Microcontroladores
 
-Como microcontrolador principal he elegido el **ESP32-S3** en conjunto con un microcontrolador secundario,
-será alguno de la familia **STMF0**, esto para reducir de alguna forma la carga al ESP32, manipulando señales.
+Para esta primera versión de Harware, se crean 3 PCB
+
+1. Placa principal (ESP32-S3)
+![Modular](./Esquematicos/CAE32_PCB_V_0.2/Modular/Modular.png)
+2. Placa para la captura de señales analogicas (STM32G070KBT6)
+![Señales](./Esquematicos/CAE32_PCB_V_0.2/Pedals/Pedals.png)
+3. Placa con el sensor hall (MT9105ET)
+![hall](./Esquematicos/CAE32_PCB_V_0.2/Hall_PCB/hall_pcb.png)
 
 ### Firmware
 

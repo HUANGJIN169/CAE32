@@ -1,21 +1,16 @@
 // search for a device with the name of "Cae32"
+#include <gtk/gtk.h>
 #include <poll.h>
 #include <stdbool.h>
 #include <stdint.h>
 typedef struct Device {
-
   int fd;
-  int shifter;
-  int brake;
-  int acelerator;
-  int steering;
-  int clutch;
   char path[50];
   bool isHID;
   bool found;
-  uint8_t version;
-  uint8_t axis;
-  uint8_t buttons;
+  guint32 version;
+  guint8 axis;
+  guint8 buttons;
 } Device;
 
 typedef struct gainDevice {
@@ -28,6 +23,9 @@ typedef struct forthread {
   struct pollfd *pfd;
 } forthread;
 int typeDevice(int fd, char name[60], Device *cae, bool isHID);
-int searchHIDDevice(const char *path, Device *cae, bool DeviceType);
+int searchHIDDevice(Device *cae, bool DeviceType);
 void showDevInfo(Device *cae);
+
+// void searchDevice(gpointer *data);
+int searchDevice(Device *cae);
 void *initpoll(Device *cae);

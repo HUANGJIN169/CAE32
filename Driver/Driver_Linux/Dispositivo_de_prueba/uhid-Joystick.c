@@ -185,7 +185,7 @@ static int create(int fd) {
   ev.u.create2.bus = BUS_USB;
   ev.u.create2.vendor = 0x15d9;
   ev.u.create2.product = 0x0a37;
-  ev.u.create2.version = 2;
+  ev.u.create2.version = 10;
   ev.u.create2.country = 0;
 
   return uhid_write(fd, &ev);

@@ -10,9 +10,14 @@ void initObjects(GtkBuilder *constructor, ObjectsUI *obj) {
   obj->barra_freno = gtk_builder_get_object(constructor, "valor_freno");
   obj->barra_clutch = gtk_builder_get_object(constructor, "valor_clutch");
   obj->output = gtk_builder_get_object(constructor, "salida");
+  obj->reconectar = gtk_builder_get_object(constructor, "reconnect");
+  // obj->visual_status = gtk_builder_get_object(constructor, "visual_status");
 }
 
-void signalsConnection(ObjectsUI *obj) { g_signal_connect(obj->ventana, "destroy", G_CALLBACK(gtk_main_quit), NULL); }
+void signalsConnection(ObjectsUI *obj) {
+  // g_signal_connect(obj->reconectar, "clicked", G_CALLBACK(searchDevice) NULL);
+  g_signal_connect(obj->ventana, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+}
 
 void CreateLevelBars(LevelBar *bar) {
   bar->ac = gtk_level_bar_new();

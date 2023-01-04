@@ -2,12 +2,15 @@
 #include <gtk/gtk.h>
 typedef struct ObjectsUI {
   GObject *ventana;
+  GObject *visual_status;
+  GObject *text_status;
   GObject *boton;
   GObject *etiqueta;
   GObject *barra_acelerador;
   GObject *barra_freno;
   GObject *barra_clutch;
   GObject *output;
+  GObject *reconectar;
 } ObjectsUI;
 
 typedef struct LevelBar {

@@ -34,11 +34,11 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="valign">baseline</property>
         <property name="margin-start">6</property>
         <property name="margin-end">6</property>
         <property name="margin-top">6</property>
         <property name="margin-bottom">6</property>
+        <property name="hexpand">False</property>
         <property name="vexpand">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">7</property>
@@ -413,18 +413,6 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <object class="GtkButton">
-                    <property name="label" translatable="yes">button</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkEntry">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -432,6 +420,17 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                   <packing>
                     <property name="left-attach">2</property>
                     <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="pixbuf">../src_images/gray.png</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">1</property>
                   </packing>
                 </child>
                 <child>
@@ -479,30 +478,103 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
           </packing>
         </child>
         <child>
-          <object class="GtkTextView" id="salida">
+          <object class="GtkScrolledWindow">
+            <property name="height-request">96</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="hscroll-policy">natural</property>
-            <property name="vscroll-policy">natural</property>
-            <property name="editable">False</property>
-            <property name="top-margin">100</property>
-            <property name="bottom-margin">7</property>
-            <property name="indent">9</property>
-            <property name="cursor-visible">False</property>
-            <property name="accepts-tab">False</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="border-width">0</property>
+            <property name="window-placement">bottom-left</property>
+            <property name="shadow-type">etched-in</property>
+            <property name="min-content-width">1</property>
+            <property name="min-content-height">1</property>
+            <property name="max-content-width">7</property>
+            <property name="max-content-height">7</property>
+            <property name="propagate-natural-width">True</property>
+            <property name="propagate-natural-height">True</property>
+            <child>
+              <object class="GtkTextView">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="editable">False</property>
+                <property name="wrap-mode">word-char</property>
+                <property name="cursor-visible">False</property>
+                <property name="accepts-tab">False</property>
+              </object>
+            </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="boton_test">
-            <property name="label" translatable="yes">Botón de pruebas</property>
+          <object class="GtkBox">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-start">10</property>
+            <child>
+              <object class="GtkLabel" id="connection_status">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Conectado</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="visual_status">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">5</property>
+                <property name="pixbuf">../src_images/green.png</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="Version">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-end">10</property>
+                <property name="hexpand">False</property>
+                <property name="label" translatable="yes">Versión 0.0.1</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="pack-type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="reconnect">
+                <property name="label" translatable="yes">Reconectar</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="receives-default">False</property>
+                <property name="margin-left">15</property>
+                <property name="relief">half</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>

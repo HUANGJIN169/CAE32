@@ -396,7 +396,7 @@ End Collection ;Close Mouse collection
 
 ### Comprobación y análisis del ejemplo en uhid.c
 
-```
+```c
  static unsigned char rdesc[] = {
          0x05, 0x01,     /* USAGE_PAGE (Generic Desktop) */
          0x09, 0x02,     /* USAGE (Mouse) */

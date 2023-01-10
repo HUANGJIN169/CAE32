@@ -45,6 +45,6 @@ La interfaz está desarrollada con el framework (GTK 3), esta permitirá hacer c
 
 Diseño de interfaz hasta el momento.
 
-**Para compilar el proyecto las instruciones las puedes encontrar [aquí](InterfazGráfica/README.md)**
+**Para compilar el proyecto las instruciones las puedes encontrar [aquí](Código/InterfazGráfica/README.md)**
 
-![interfaz](InterfazGráfica/Previa.png)
+![interfaz](Código/InterfazGráfica/Previa.png)

@@ -4,6 +4,9 @@
  */
 // Use libudev on the future//
 #include "device.h"
+#include "cae32_app.h"
+// #include "cae32_app.h"
+//  #include "objectsGtk.h"
 #include <fcntl.h>
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -19,6 +22,7 @@
 const char nameCAE[] = "Steering Wheel CAE32"; // Name device to compare with the file descriptor
 int MAXDEVICES = 10;                           // The maximum number to check for device
 
+// ObjectsUI widgets;
 int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it can be HID or Joystick device
   memset(cae->path, 0, sizeof(cae->path));
   cae->axis = 0;
@@ -36,7 +40,7 @@ int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it ca
     strcpy(path, "/dev/input/js");
   }
   for (i = 0; i <= MAXDEVICES; i++) {
-    snprintf(buffer, sizeof(buffer), "%s%d", path, i);
+    g_snprintf(buffer, sizeof(buffer), "%s%d", path, i);
     g_printerr("%s\n", buffer);
     fd = open(buffer, O_RDWR);
     if (fd > 0) {
@@ -64,7 +68,6 @@ int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it ca
 // true if it is HID device, false if it is Joystick
 int typeDevice(int fd, char name[256], Device *cae, bool isHID) {
 
-  g_printerr("Device address on typeDevice%p\n", cae);
   if (isHID == false) {
     ioctl(fd, JSIOCGNAME(60), name);
     if (strcmp(name, nameCAE) == 0) {
@@ -101,26 +104,29 @@ void showDevInfo(Device *cae) { // print all the device data
   g_printerr("Buttons %u \n", cae->buttons);
   g_printerr("Path %s \n", cae->path);
   g_printerr("-------------------\n");
-  /*
-  g_printerr("Shifter Value %d \n", cae->shifter);
-  g_printerr("Acelerator Value %d \n", cae->acelerator);
-  g_printerr("Brake Value %d \n", cae->brake);
-  g_printerr("Steering Value %d \n", cae->steering);
-  g_printerr("-------------------\n");
-*/
 }
 
-int searchDevice(Device *cae) {
-  //  g_printerr("Device address %p\n", cae);
+int searchDevice(gpointer data) {
+  CAE32App *app = G_POINTER_TO_CAE32_APP(data);
+  ObjectsUI *UI = cae32_app_get_gui(app);
+  Device *cae = &CAE32_APP(app)->priv->device;
+
   if (searchHIDDevice(cae, false) >= 0) {
     g_printerr("Monitoring Joystick device\n");
+    cae->found = true;
+    gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (Joystick)");
+    gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
     return 1;
   }
   if (searchHIDDevice(cae, true) >= 0) {
     g_printerr("Monitoring HID device\n");
+    gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (HID)");
     return 0;
+    cae->found = true;
   }
-
+  gtk_label_set_text(GTK_LABEL(UI->text_status), "Desconectado");
+  gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/red.png");
+  cae->found = false;
   g_printerr("I can't find the Device\n");
   return -1;
 }

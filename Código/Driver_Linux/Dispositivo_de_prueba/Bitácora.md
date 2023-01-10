@@ -12,7 +12,7 @@ un poco en la dirección de la tecla correspondiente, te recomiendo que veas el 
 
 Para presentar este dispositivo virtual como un joystick es necesario un cambio
 
-```
+```c
 static unsigned char rdesc[] = {
 	0x05, 0x01,	/* USAGE_PAGE (Generic Desktop) */
 	0x09, 0x02,	/* USAGE (Mouse) */
@@ -21,7 +21,7 @@ static unsigned char rdesc[] = {
  
 a
 
-```
+```c
 static unsigned char rdesc[] = {
 	0x05, 0x01,	/* USAGE_PAGE (Generic Desktop) */ //
 	0x09, 0x04,	/* USAGE (Mouse) */ De esta forma se le dice que es un joystick

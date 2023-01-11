@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/poll.h>
+#include <unistd.h>
 const char nameCAE[] = "Steering Wheel CAE32"; // Name device to compare with the file descriptor
 int MAXDEVICES = 10;                           // The maximum number to check for device
 
@@ -114,18 +115,27 @@ int searchDevice(gpointer data) {
   if (searchHIDDevice(cae, false) >= 0) {
     g_printerr("Monitoring Joystick device\n");
     cae->found = true;
-    gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (Joystick)");
+    cae->isHID = false;
+    // mostrar estado actual de conexion
+    gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (Joystick)"); // Agregar una función para que muestre el estado
     gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
+    // CAE32_APP(app)->priv->input = g_thread_try_new("input_barras", initCaptureData, app, NULL);
+    // initCaptureData(app);
+    g_thread_try_new("input_barras", initCaptureData, app, NULL);
     return 1;
   }
   if (searchHIDDevice(cae, true) >= 0) {
     g_printerr("Monitoring HID device\n");
     gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (HID)");
-    return 0;
+    gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
+    cae->isHID = true;
     cae->found = true;
+
+    return 0;
   }
   gtk_label_set_text(GTK_LABEL(UI->text_status), "Desconectado");
   gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/red.png");
+
   cae->found = false;
   g_printerr("I can't find the Device\n");
   return -1;
@@ -138,18 +148,24 @@ int searchDevice(gpointer data) {
 // void initpoll(Device *cae, struct pollfd *pfd) {
 // Checking if was diconnected
 // void *updateDevice(Device *cae) {}
-void *initpoll(Device *cae) {
+void *initCaptureData(gpointer data) {
+  CAE32App *app = G_POINTER_TO_CAE32_APP(data);
+  ObjectsUI *UI = cae32_app_get_gui(app);
+  Device *cae = &CAE32_APP(app)->priv->device;
+  // GCond cond=CAE32_APP(app)->priv->input_fd;
+  gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_acelerador), 0.1);
   g_printerr("openning path: %s\n", cae->path);
   int fd;
   struct js_event js;
   fd = open(cae->path, O_RDWR | O_NONBLOCK);
+  ssize_t len;
   while (1) {
-    ssize_t len = read(fd, &js, sizeof(js));
-    if (len < 0) {
-      g_printerr("Error\n");
-    } else if (len == sizeof(js)) {
+    usleep(100); // sleep(1);
+    len = read(fd, &js, sizeof(js));
+    if (len == sizeof(js)) {
       if (js.type & JS_EVENT_AXIS) {
 
+        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_acelerador), js.value / 32000.0);
         g_printerr("Axis: %d, Value: %d\n", js.number, js.value);
 
         // axis_state[js.number] = js.value;

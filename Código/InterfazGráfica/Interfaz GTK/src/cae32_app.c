@@ -11,6 +11,7 @@ static void cae32_app_init(CAE32App *app) {
 static void cae32_app_activate(GApplication *app) {
   g_printerr("Activando\n");
   Device *device = g_malloc(sizeof(Device));
+
   /*
     GError *error = NULL;
     GtkBuilder *constructor = gtk_builder_new();

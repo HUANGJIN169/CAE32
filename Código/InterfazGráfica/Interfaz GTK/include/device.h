@@ -19,6 +19,6 @@ int typeDevice(int fd, char name[60], Device *cae, bool isHID);
 int searchHIDDevice(Device *cae, bool DeviceType);
 void showDevInfo(Device *cae);
 int searchDevice(gpointer data);
-void *initpoll(Device *cae);
+void *initCaptureData(gpointer data);
 #endif
 // #pragma once

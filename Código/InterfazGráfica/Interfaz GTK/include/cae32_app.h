@@ -28,9 +28,10 @@ typedef struct _CAE32AppClass CAE32AppClass;
 struct _CAE32AppPrivate {
   ObjectsUI *UI;
   Device device;
-  GThread *input;
-  GCond input_fd;
-  GMutex input_mutex;
+
+  // GThread *input;
+  // GCond input_fd;
+  // GMutex input_mutex;
   guint most_recent_id;
 };
 

@@ -434,7 +434,14 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkLevelBar">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -522,9 +529,13 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
             <property name="margin-start">10</property>
             <child>
               <object class="GtkLabel" id="text_status">
+                <property name="width-request">126</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Conectado</property>
+                <property name="halign">start</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <property name="label" translatable="yes">Desconocido</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -536,8 +547,9 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
               <object class="GtkImage" id="visual_status">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-start">5</property>
-                <property name="pixbuf">../src_images/green.png</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <property name="pixbuf">../src_images/gray.png</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -562,7 +574,7 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
             </child>
             <child>
               <object class="GtkButton" id="reconnect">
-                <property name="label" translatable="yes">Reconectar</property>
+                <property name="label" translatable="yes">Conectar</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="receives-default">False</property>

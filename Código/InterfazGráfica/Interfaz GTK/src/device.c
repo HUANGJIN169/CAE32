@@ -2,27 +2,25 @@
  *  this code is use, but if is registered like Steering wheel then
  *  deviceHID is used
  */
-// Use libudev on the future//
 #include "device.h"
 #include "cae32_app.h"
-// #include "cae32_app.h"
-//  #include "objectsGtk.h"
+#include "glibconfig.h"
 #include <fcntl.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <linux/hidraw.h>
 #include <linux/joystick.h>
-#include <poll.h>
-#include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/poll.h>
 #include <unistd.h>
+
 const char nameCAE[] = "Steering Wheel CAE32"; // Name device to compare with the file descriptor
 int MAXDEVICES = 10;                           // The maximum number to check for device
 
+// gboolean CaptureEvent(gpointer data);
+void updateAxisBar(ObjectsUI *UI, guint8 number, guint16 value);
 // ObjectsUI widgets;
 int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it can be HID or Joystick device
   memset(cae->path, 0, sizeof(cae->path));
@@ -55,7 +53,6 @@ int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it ca
       }
     }
   }
-
   if (fd < 0) {
     g_printerr("Don't found any device \n");
     return -1;
@@ -63,6 +60,39 @@ int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it ca
 
   close(fd);
   return 0;
+}
+
+// apply poll to use signals and events
+// 1. Open file descriptor
+// 2. Read file descriptor
+//
+// void initpoll(Device *cae, struct pollfd *pfd) {
+// Checking if was diconnected
+static gboolean CaptureEvent(gpointer data) {
+  CAE32App *app = G_POINTER_TO_CAE32_APP(data);
+  ObjectsUI *UI = cae32_app_get_gui(app);
+  Device *cae = &CAE32_APP(app)->priv->device;
+  // int fd;
+  struct js_event js;
+  // fd = open(cae->path, O_RDWR | O_NONBLOCK);
+  open(cae->path, O_RDWR | O_NONBLOCK);
+  ssize_t len = read(cae->fd, &js, sizeof(js));
+
+  if (len < 0) {
+    g_printerr("Error\n");
+    return TRUE;
+  }
+
+  if (len == sizeof(js)) {
+    if (js.type & JS_EVENT_AXIS) {
+      updateAxisBar(UI, js.number, js.value);
+      g_printerr("Axis: %d, Value: %d\n", js.number, js.value);
+    } else if (js.type & JS_EVENT_BUTTON) {
+
+      g_printerr("Button: %d, Value: %d\n", js.number, js.value);
+    }
+  }
+  return TRUE;
 }
 
 // Depending the device type it will compare it's name to check if is the steering wheel
@@ -107,75 +137,112 @@ void showDevInfo(Device *cae) { // print all the device data
   g_printerr("-------------------\n");
 }
 
+void showStatusConnection(Device *cae, ObjectsUI *UI) {
+  if (cae->found) {
+    if (cae->isHID) {
+
+      gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (HID)");
+      gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
+    } else {
+      gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (Joystick)");
+      gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
+    }
+  } else {
+
+    gtk_label_set_text(GTK_LABEL(UI->text_status), "Desconectado");
+    gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/red.png");
+  }
+}
+//
+struct udev_source {
+  GSource base;
+  gpointer tag;
+};
+
+static gboolean udev_source_prepare(G_GNUC_UNUSED GSource *source, gint *timeout) {
+  *timeout = -1;
+  return FALSE;
+}
+
+static gboolean udev_source_check(GSource *source) {
+  struct udev_source *usrc = (struct udev_source *)source;
+
+  return (g_source_query_unix_fd(source, usrc->tag) > 0);
+}
+
+static gboolean udev_source_dispatch(GSource *source, GSourceFunc callback, gpointer user_data) {
+  struct udev_source *usrc = (struct udev_source *)source;
+  GIOCondition revents = g_source_query_unix_fd(source, usrc->tag);
+
+  if (revents & G_IO_IN | G_IO_HUP) {
+    if (callback == NULL)
+      return FALSE;
+    return callback(user_data);
+  }
+
+  return TRUE;
+}
+
+GSourceFuncs udev_source_funcs = {
+    .prepare = udev_source_prepare,
+    .check = udev_source_check,
+    .dispatch = udev_source_dispatch,
+};
+//
+
+void configGSource(Device *cae, CAE32App *app) {
+
+  struct udev_source *source;
+  source = (struct udev_source *)g_source_new(&udev_source_funcs, sizeof(*source));
+  g_source_set_callback(&source->base, CaptureEvent, app, NULL); /* destroy_notify */
+  source->tag = g_source_add_unix_fd(&source->base, cae->fd, G_IO_IN | G_IO_HUP);
+  g_source_attach(&source->base, g_main_context_default());
+  g_source_unref(&source->base);
+}
+
 int searchDevice(gpointer data) {
   CAE32App *app = G_POINTER_TO_CAE32_APP(data);
   ObjectsUI *UI = cae32_app_get_gui(app);
   Device *cae = &CAE32_APP(app)->priv->device;
-
-  if (searchHIDDevice(cae, false) >= 0) {
+  if (searchHIDDevice(cae, false) >= 0) { // Searching for a Joystick device
     g_printerr("Monitoring Joystick device\n");
     cae->found = true;
     cae->isHID = false;
-    // mostrar estado actual de conexion
-    gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (Joystick)"); // Agregar una función para que muestre el estado
-    gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
-    // CAE32_APP(app)->priv->input = g_thread_try_new("input_barras", initCaptureData, app, NULL);
-    // initCaptureData(app);
-    g_thread_try_new("input_barras", initCaptureData, app, NULL);
+    showStatusConnection(cae, UI);
+    configGSource(cae, app);
     return 1;
   }
-  if (searchHIDDevice(cae, true) >= 0) {
+  if (searchHIDDevice(cae, true) >= 0) { // Searching for a HID device
     g_printerr("Monitoring HID device\n");
-    gtk_label_set_text(GTK_LABEL(UI->text_status), "Conectado (HID)");
-    gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/green.png");
     cae->isHID = true;
     cae->found = true;
-
+    showStatusConnection(cae, UI);
     return 0;
   }
-  gtk_label_set_text(GTK_LABEL(UI->text_status), "Desconectado");
-  gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/red.png");
 
   cae->found = false;
+  showStatusConnection(cae, UI);
   g_printerr("I can't find the Device\n");
   return -1;
 }
 
-// apply poll to use signals and events
-// 1. Open file descriptor
-// 2. Read file descriptor
-//
-// void initpoll(Device *cae, struct pollfd *pfd) {
-// Checking if was diconnected
-// void *updateDevice(Device *cae) {}
-void *initCaptureData(gpointer data) {
-  CAE32App *app = G_POINTER_TO_CAE32_APP(data);
-  ObjectsUI *UI = cae32_app_get_gui(app);
-  Device *cae = &CAE32_APP(app)->priv->device;
-  // GCond cond=CAE32_APP(app)->priv->input_fd;
-  gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_acelerador), 0.1);
-  g_printerr("openning path: %s\n", cae->path);
-  int fd;
-  struct js_event js;
-  fd = open(cae->path, O_RDWR | O_NONBLOCK);
-  ssize_t len;
-  while (1) {
-    usleep(100); // sleep(1);
-    len = read(fd, &js, sizeof(js));
-    if (len == sizeof(js)) {
-      if (js.type & JS_EVENT_AXIS) {
+void updateAxisBar(ObjectsUI *UI, guint8 number, guint16 value) {
+  switch (number) {
+  case 0: {
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_freno), value / 32000.0);
+    break;
+  }
+  case 1: {
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_clutch), value / 32000.0);
+    break;
+  }
+  case 2: {
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_acelerador), value / 32000.0);
+    break;
+  }
+  case 3: {
 
-        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_acelerador), js.value / 32000.0);
-        g_printerr("Axis: %d, Value: %d\n", js.number, js.value);
-
-        // axis_state[js.number] = js.value;
-        // axis_move(js.number, js.value);
-      } else if (js.type & JS_EVENT_BUTTON) {
-
-        g_printerr("Button: %d, Value: %d\n", js.number, js.value);
-
-        // button_move(js.number, js.value);
-      }
-    }
+    break;
+  }
   }
 }

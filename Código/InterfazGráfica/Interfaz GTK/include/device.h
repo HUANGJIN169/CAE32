@@ -15,10 +15,11 @@ typedef struct Device {
   guint8 axis;
   guint8 buttons;
 } Device;
+
 int typeDevice(int fd, char name[60], Device *cae, bool isHID);
 int searchHIDDevice(Device *cae, bool DeviceType);
 void showDevInfo(Device *cae);
 int searchDevice(gpointer data);
-void *initCaptureData(gpointer data);
+// gboolean CaptureEvents(gpointer data);
 #endif
 // #pragma once

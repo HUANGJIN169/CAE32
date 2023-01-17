@@ -1,5 +1,6 @@
 // #include "device.h"
 #include "cae32_app.h"
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
 /*typedef struct ObjectsUI {
   GtkWidget *ventana;

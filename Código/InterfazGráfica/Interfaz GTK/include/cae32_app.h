@@ -18,7 +18,9 @@ struct _ObjectsUI {
   GtkWidget *barra_freno;
   GtkWidget *barra_clutch;
   GtkWidget *output;
+  GtkWidget *swa; // sterring wheel animation
   GtkWidget *reconectar;
+  GdkPixbuf *pixbuf;
 };
 
 typedef struct _CAE32AppPrivate CAE32AppPrivate;

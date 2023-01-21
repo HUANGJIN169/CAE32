@@ -5,7 +5,7 @@
 // #include "device.h"
 #include "signals.h"
 #include <gtk/gtk.h>
-static gdouble rotate = 0.0;
+// static gdouble rotate = 0.0;
 void start_gui(void) {
   GError *error = NULL;
   GtkBuilder *constructor = gtk_builder_new();
@@ -27,14 +27,15 @@ static gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer data) {
   ObjectsUI *UI = cae32_app_get_gui(app);
   cairo_save(cr);
   cairo_translate(cr, gtk_widget_get_allocated_width(widget) / 2.0, gtk_widget_get_allocated_height(widget) / 2.0);
-  cairo_rotate(cr, rotate);
+  // cairo_rotate(cr, rotate);
+  cairo_rotate(cr, UI->rotation);
   gdk_cairo_set_source_pixbuf(cr, UI->pixbuf, -gdk_pixbuf_get_width(UI->pixbuf) / 2.0, -gdk_pixbuf_get_height(UI->pixbuf) / 2.0);
   cairo_paint(cr);
   cairo_restore(cr);
 
   return TRUE;
 }
-
+/*
 static gboolean on_timeout(gpointer data) {
   // CAE32App *app = G_POINTER_TO_CAE32_APP(data);
   // ObjectsUI *UI = cae32_app_get_gui(app);
@@ -42,7 +43,7 @@ static gboolean on_timeout(gpointer data) {
   gtk_widget_queue_draw(GTK_WIDGET(data));
   return TRUE;
 }
-
+*/
 ObjectsUI *buildObjects(GtkApplication *app) {
   GtkBuilder *constructor = gtk_builder_new();
   gtk_builder_add_from_file(constructor, "../gladeFiles/UI1.glade", NULL);
@@ -63,7 +64,8 @@ ObjectsUI *buildObjects(GtkApplication *app) {
 }
 
 void signalsConnection(ObjectsUI *obj, CAE32App *app) {
-  g_timeout_add(50, on_timeout, obj->swa);
+  // g_timeout_add(50, on_timeout, obj->swa);
+  // g_timeout_add(50, update, obj->swa);
   g_signal_connect_swapped(obj->reconectar, "clicked", G_CALLBACK(searchDevice), app);
   g_signal_connect(obj->ventana, "destroy", G_CALLBACK(gtk_main_quit), NULL);
   g_signal_connect(G_OBJECT(obj->swa), "draw", G_CALLBACK(on_draw), app);

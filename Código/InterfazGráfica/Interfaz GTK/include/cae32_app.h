@@ -19,6 +19,7 @@ struct _ObjectsUI {
   GtkWidget *barra_clutch;
   GtkWidget *output;
   GtkWidget *swa; // sterring wheel animation
+  gdouble rotation;
   GtkWidget *reconectar;
   GdkPixbuf *pixbuf;
 };

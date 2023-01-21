@@ -72,9 +72,7 @@ static gboolean CaptureEvent(gpointer data) {
   CAE32App *app = G_POINTER_TO_CAE32_APP(data);
   ObjectsUI *UI = cae32_app_get_gui(app);
   Device *cae = &CAE32_APP(app)->priv->device;
-  // int fd;
   struct js_event js;
-  // fd = open(cae->path, O_RDWR | O_NONBLOCK);
   open(cae->path, O_RDWR | O_NONBLOCK);
   ssize_t len = read(cae->fd, &js, sizeof(js));
 
@@ -226,13 +224,19 @@ int searchDevice(gpointer data) {
   return -1;
 }
 
+void updateSteeringWheel(ObjectsUI *UI, guint16 value) {
+
+  // UI->rotation += 0.50;
+  UI->rotation = (value / 32000.0) * 8;
+  gtk_widget_queue_draw(UI->swa);
+}
 void updateAxisBar(ObjectsUI *UI, guint8 number, guint16 value) {
   switch (number) {
   case 0: {
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_freno), value / 32000.0);
     break;
   }
-  case 1: {
+  case 3: {
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_clutch), value / 32000.0);
     break;
   }
@@ -240,7 +244,8 @@ void updateAxisBar(ObjectsUI *UI, guint8 number, guint16 value) {
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(UI->barra_acelerador), value / 32000.0);
     break;
   }
-  case 3: {
+  case 1: {
+    updateSteeringWheel(UI, value);
 
     break;
   }

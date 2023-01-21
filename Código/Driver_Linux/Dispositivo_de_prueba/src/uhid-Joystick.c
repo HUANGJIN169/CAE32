@@ -269,6 +269,7 @@ static bool btn3_down;
 static char rel_hor;
 static char rel_ver;
 static char wheel;
+static char clutch;
 
 static int send_event(int fd) {
   struct uhid_event ev;
@@ -288,6 +289,7 @@ static int send_event(int fd) {
   ev.u.input2.data[2] = rel_hor;
   ev.u.input2.data[3] = rel_ver;
   ev.u.input2.data[4] = wheel;
+  ev.u.input2.data[5] = clutch;
 
   return uhid_write(fd, &ev);
 }
@@ -367,6 +369,19 @@ static int keyboard(int fd) {
       if (ret)
         return ret;
       break;
+    case 't':
+      clutch++;
+      ret = send_event(fd);
+      if (ret)
+        return ret;
+      break;
+    case 'g':
+      clutch--;
+      ret = send_event(fd);
+      if (ret)
+        return ret;
+      break;
+
     case 'q':
       return -ECANCELED;
     default:

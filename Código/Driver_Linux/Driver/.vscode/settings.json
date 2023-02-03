@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "gadgetfs.h": "c",
-        "hid.h": "c",
-        "joystick.h": "c",
-        "ch9.h": "c"
-    },
-    "C_Cpp.errorSquiggles": "Enabled"
-}

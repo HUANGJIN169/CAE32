@@ -3,16 +3,15 @@
 *.zip
 *.pdf
 *.*~
-Código/Código_ESP_IDF/build/
-Código/Código_ESP_IDF/.vscode/
-Código/Código_ESP_IDF/.devcontainer/
-Código/Código_ESP_IDF/.cache/
-Código/InterfazGráfica/Interfaz \GTK/Makefile
-Código/InterfazGráfica/Interfaz \GTK/.cache/
-Código/InterfazGráfica/Interfaz \GTK/cmake_install.cmake
-Código/InterfazGráfica/Interfaz \GTK/CMakeCache.txt
-Código/InterfazGráfica/Interfaz \GTK/CMakeFiles/
-Código/InterfazGráfica/Interfaz \GTK/build/
-Código/InterfazGráfica/Interfaz \GTK/compile_commands.json
+Codigo/Firmware/Main_board/build/
+Codigo/Firmware/Main_board/.vscode/
+Codigo/Firmware/Main_board/.devcontainer/
+Codigo/Firmware/Main_board/.cache/
+Codigo/Interfaz_grafica/Interfaz_gtk/.cache/
+Codigo/Interfaz_grafica/Interfaz_gtk/cmake_install.cmake
+Codigo/Interfaz_grafica/Interfaz_gtk/CMakeCache.txt
+Codigo/Interfaz_grafica/Interfaz_gtk/CMakeFiles/
+Codigo/Interfaz_grafica/Interfaz_gtk/build/
+Codigo/Interfaz_grafica/Interfaz_gtkcompile_commands.json
 Documentacion/.obsidian/
 ideas/

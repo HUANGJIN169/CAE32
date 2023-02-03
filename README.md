@@ -47,4 +47,4 @@ Diseño de interfaz hasta el momento.
 
 **Para compilar el proyecto las instruciones las puedes encontrar [aquí](Código/InterfazGráfica/README.md)**
 
-![interfaz](Código/InterfazGráfica/Previa.png)
+![interfaz](Documentacion/Previa.png)

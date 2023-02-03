@@ -1,0 +1,13 @@
+
+{
+  "firmware_version": "1.0.0",
+  "gui_version": "1.0.0",
+  "device_model": "ABC123",
+  "compatible_devices": [
+    "ABC100",
+    "ABC101",
+    "CAE32"
+  ],
+  "firmware_update_url": "https://example.com/firmware/1.0.0/ABC123.bin",
+  "gui_update_url": "https://example.com/gui/1.0.0/ABC123.zip"
+}

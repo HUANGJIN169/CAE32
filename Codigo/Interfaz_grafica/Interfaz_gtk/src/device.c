@@ -18,34 +18,39 @@
 
 const char nameCAE[] = "Steering Wheel CAE32"; // Name device to compare with the file descriptor
 int MAXDEVICES = 10;                           // The maximum number to check for device
+struct udev_source *source;
 
 // gboolean CaptureEvent(gpointer data);
 void updateAxisBar(ObjectsUI *UI, guint8 number, guint16 value);
 // ObjectsUI widgets;
 int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it can be HID or Joystick device
   memset(cae->path, 0, sizeof(cae->path));
+  /*
   cae->axis = 0;
   cae->buttons = 0;
   cae->version = 0;
   cae->fd = 0;
+  */
+
   char buffer[256];
   char path[50];
   int fd, i;
+
   if (DeviceType) {
     g_printerr("Searching for HID Device\n");
-    strcpy(path, "/dev/hidraw");
+    strcpy(path, "/dev/hidraw"); // search on hid path
   } else {
     g_printerr("Searching for Joystick Device\n");
-    strcpy(path, "/dev/input/js");
+    strcpy(path, "/dev/input/js"); // search on joystick path
   }
   for (i = 0; i <= MAXDEVICES; i++) {
-    g_snprintf(buffer, sizeof(buffer), "%s%d", path, i);
-    g_printerr("%s\n", buffer);
-    fd = open(buffer, O_RDWR);
+    g_snprintf(buffer, sizeof(buffer), "%s%d", path, i); // gived format to open the specified device
+    g_printerr("%s\n", buffer);                          // print of specified device
+    fd = open(buffer, O_RDWR);                           // open to check if exist a device
     if (fd > 0) {
       g_printerr("Found a device on %s\n", buffer);
       g_printerr("Comparing device name...\n");
-      strcpy(cae->path, buffer);
+      strcpy(cae->path, buffer); // save the path to read later
       if (typeDevice(fd, buffer, cae, DeviceType) == 1) {
         // strcpy(cae->path, buffer);
         break;
@@ -62,22 +67,23 @@ int searchHIDDevice(Device *cae, bool DeviceType) { // Search for a device it ca
   return 0;
 }
 
-// apply poll to use signals and events
-// 1. Open file descriptor
-// 2. Read file descriptor
-//
-// void initpoll(Device *cae, struct pollfd *pfd) {
-// Checking if was diconnected
 static gboolean CaptureEvent(gpointer data) {
+  // get all the components (device,UI elements)
   CAE32App *app = G_POINTER_TO_CAE32_APP(data);
   ObjectsUI *UI = cae32_app_get_gui(app);
   Device *cae = CAE32_APP(app)->priv->device;
-  struct js_event js;
-  open(cae->path, O_RDWR | O_NONBLOCK);
-  ssize_t len = read(cae->fd, &js, sizeof(js));
+  //-------------------------------------------
+  struct js_event js; // create a struct to save all the events
+
+  open(cae->path, O_RDWR | O_NONBLOCK);         // open the path to read on nonblocking mode
+  ssize_t len = read(cae->fd, &js, sizeof(js)); // read the data from the device
 
   if (len < 0) {
+    // detach device from the threadand update the visual state
     g_printerr("Error\n");
+    g_source_destroy((GSource *)source);
+    gtk_label_set_text(GTK_LABEL(UI->text_status), "Desconectado");
+    gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/red.png");
     return TRUE;
   }
 
@@ -98,8 +104,8 @@ static gboolean CaptureEvent(gpointer data) {
 int typeDevice(int fd, char name[256], Device *cae, bool isHID) {
 
   if (isHID == false) {
-    ioctl(fd, JSIOCGNAME(60), name);
-    if (strcmp(name, nameCAE) == 0) {
+    ioctl(fd, JSIOCGNAME(60), name);  // get the joystick name
+    if (strcmp(name, nameCAE) == 0) { // compare name
       g_printerr("Found joystick %s device \n", nameCAE);
       cae->fd = fd;
       ioctl(fd, JSIOCGAXES, &cae->axis);
@@ -111,9 +117,9 @@ int typeDevice(int fd, char name[256], Device *cae, bool isHID) {
       return -1;
     }
   } else {
-    ioctl(fd, HIDIOCGRAWNAME(256), name);
+    ioctl(fd, HIDIOCGRAWNAME(256), name); // get the HID name
     g_printerr("name :%s\n", name);
-    if (strcmp(name, nameCAE) == 0) {
+    if (strcmp(name, nameCAE) == 0) { // compare name
       g_printerr("Found HID device\n");
       cae->fd = fd;
       return 1;
@@ -164,7 +170,6 @@ static gboolean udev_source_prepare(G_GNUC_UNUSED GSource *source, gint *timeout
 
 static gboolean udev_source_check(GSource *source) {
   struct udev_source *usrc = (struct udev_source *)source;
-
   return (g_source_query_unix_fd(source, usrc->tag) > 0);
 }
 
@@ -190,8 +195,9 @@ GSourceFuncs udev_source_funcs = {
 
 void configGSource(Device *cae, CAE32App *app) {
 
-  struct udev_source *source;
   source = (struct udev_source *)g_source_new(&udev_source_funcs, sizeof(*source));
+  // struct udev_source *source;
+  // source = (struct udev_source *)g_source_new(&udev_source_funcs, sizeof(*source));
   g_source_set_callback(&source->base, CaptureEvent, app, NULL); /* destroy_notify */
   source->tag = g_source_add_unix_fd(&source->base, cae->fd, G_IO_IN | G_IO_HUP);
   g_source_attach(&source->base, g_main_context_default());

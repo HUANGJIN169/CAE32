@@ -27,9 +27,11 @@ Para esta primera versión de Harware, se crean 3 PCB
 
 ### Firmware
 
-Estoy usando el framework de Espressif (ESP-IDF) en conjunto con FreeRtos
+Estoy usando el framework de Espressif (ESP-IDF)
 
-Aún no inicio con el desarrollo en el microcontrolador STM
+Se usa el microcontrolador STM32G070KBT6, en conjunto con el software
+STM32CubeIDE y para programarlo es necesario la utilidad STM32CubeProgrammer,
+ademas de una conexión con un "USB-UART bridge"
 
 ### Interfaz de usuario
 
@@ -45,6 +47,7 @@ La interfaz está desarrollada con el framework (GTK 3), esta permitirá hacer c
 
 Diseño de interfaz hasta el momento.
 
-**Para compilar el proyecto las instruciones las puedes encontrar [aquí](Código/InterfazGráfica/README.md)**
+**Para compilar el proyecto puedes usar el contenedor o construirlo en tu sistema(cumpliendo con las dependencias),
+revisa la wiki para mas información**
 
 ![interfaz](Documentacion/Previa.png)

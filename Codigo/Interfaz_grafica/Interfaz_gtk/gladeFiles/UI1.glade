@@ -768,21 +768,33 @@ along with .  If not, see <http://www.gnu.org/licenses/>.
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkTextView" id="salidaActualización">
+                  <object class="GtkScrolledWindow">
+                    <property name="height-request">50</property>
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can-focus">True</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">10</property>
                     <property name="hexpand">True</property>
                     <property name="vexpand">True</property>
-                    <property name="editable">False</property>
-                    <property name="cursor-visible">False</property>
-                    <property name="accepts-tab">False</property>
-                    <property name="input-purpose">terminal</property>
+                    <property name="window-placement">bottom-left</property>
+                    <property name="shadow-type">etched-in</property>
+                    <property name="min-content-width">1</property>
+                    <property name="min-content-height">1</property>
+                    <property name="max-content-width">7</property>
+                    <property name="max-content-height">7</property>
+                    <property name="propagate-natural-width">True</property>
+                    <property name="propagate-natural-height">True</property>
+                    <child>
+                      <object class="GtkTextView" id="tv_updatelog">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can-focus">True</property>
+                        <property name="editable">False</property>
+                        <property name="cursor-visible">False</property>
+                        <property name="accepts-tab">False</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>

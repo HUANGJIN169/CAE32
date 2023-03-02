@@ -3,6 +3,7 @@
 *.zip
 *.pdf
 *.*~
+Codigo/Firmware/Main_board_HID/
 Codigo/Firmware/Main_board/build/
 Codigo/Firmware/Main_board/.vscode/
 Codigo/Firmware/Main_board/.devcontainer/

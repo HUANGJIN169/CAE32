@@ -1,5 +1,5 @@
-
 {
+"test_version": "0.0.1",
   "firmware_version": "1.0.0",
   "gui_version": "1.0.0",
   "device_model": "ABC123",

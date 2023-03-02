@@ -363,12 +363,12 @@
   },
   "pcbnew": {
     "last_paths": {
-      "gencad": "",
+      "gencad": "../../../../../../../Escritorio/shifter/test_iman/hall_pcb.cad",
       "idf": "../Boom/hall_pcb.emn",
       "netlist": "",
-      "specctra_dsn": "../Boom/hall_pcb.dsn",
-      "step": "../Boom/hall_pcb.step",
-      "vrml": "../Boom/hall_pcb.wrl"
+      "specctra_dsn": "../../../../../../../Escritorio/shifter/test_iman/hall_pcb.dsn",
+      "step": "../../../../../../../Escritorio/shifter/test_iman/hall_pcb.step",
+      "vrml": "../../../../../../../Escritorio/shifter/test_iman/hall_pcb.wrl"
     },
     "page_layout_descr_file": ""
   },

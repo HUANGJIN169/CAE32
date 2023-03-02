@@ -10,7 +10,6 @@ static void cae32_app_init(CAE32App *app) {
 
 static void cae32_app_activate(GApplication *app) {
   Device *device = g_malloc(sizeof(Device));
-  g_printerr("device %p \n", device);
   CAE32_APP(app)->priv->UI = buildObjects(GTK_APPLICATION(app));
   ObjectsUI *UI = cae32_app_get_gui(CAE32_APP(app));
   g_set_prgname("CAE32");

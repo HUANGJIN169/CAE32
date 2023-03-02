@@ -21,6 +21,8 @@ struct _ObjectsUI {
   GtkWidget *swa; // sterring wheel animation
   gdouble rotation;
   GtkWidget *reconectar;
+  GtkWidget *search_updates; // button
+  GtkWidget *tv_updatelog;
   GdkPixbuf *pixbuf;
 };
 

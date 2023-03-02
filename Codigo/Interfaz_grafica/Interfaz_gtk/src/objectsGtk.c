@@ -1,11 +1,10 @@
 /*Register of all Widgets objects*/
 #include "objectsGtk.h"
 #include "cae32_app.h"
-#include <cairo.h>
-// #include "device.h"
 #include "signals.h"
+#include "updater.h"
+#include <cairo.h>
 #include <gtk/gtk.h>
-// static gdouble rotate = 0.0;
 void start_gui(void) {
   GError *error = NULL;
   GtkBuilder *constructor = gtk_builder_new();
@@ -60,6 +59,8 @@ ObjectsUI *buildObjects(GtkApplication *app) {
   obj->visual_status = GTK_WIDGET(gtk_builder_get_object(constructor, "visual_status"));
   obj->text_status = GTK_WIDGET(gtk_builder_get_object(constructor, "text_status"));
   obj->swa = GTK_WIDGET(gtk_builder_get_object(constructor, "swa"));
+  obj->search_updates = GTK_WIDGET(gtk_builder_get_object(constructor, "actualizar"));
+  obj->tv_updatelog = GTK_WIDGET(gtk_builder_get_object(constructor, "tv_updatelog"));
   return obj;
   g_object_unref(G_OBJECT(constructor));
 }
@@ -76,5 +77,6 @@ void freeElements(gpointer data) {
 void signalsConnection(ObjectsUI *obj, CAE32App *app) {
   g_signal_connect_swapped(obj->reconectar, "clicked", G_CALLBACK(searchDevice), app);
   g_signal_connect_swapped(obj->ventana, "destroy", G_CALLBACK(freeElements), app);
+  g_signal_connect_swapped(obj->search_updates, "clicked", G_CALLBACK(search_update), app);
   g_signal_connect(G_OBJECT(obj->swa), "draw", G_CALLBACK(on_draw), app);
 }

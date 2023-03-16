@@ -3,7 +3,13 @@
 *.zip
 *.pdf
 *.*~
-Codigo/Firmware/Main_board_HID/
+**/compile_commands.json
+Codigo/Firmware/Main_board_HID/ESP32-S3/build/
+Codigo/Firmware/Main_board_HID/ESP32-S3/main/build/
+Codigo/Firmware/Main_board_HID/ESP32-S3/main/.cache/
+Codigo/Firmware/Main_board_HID/ESP32-S3/.cache/
+Codigo/Firmware/Main_board_HID/ESP32-S3/.vscode/
+Codigo/Firmware/Main_board_HID/ESP32-S3/.devcontainer/
 Codigo/Firmware/Main_board/build/
 Codigo/Firmware/Main_board/.vscode/
 Codigo/Firmware/Main_board/.devcontainer/

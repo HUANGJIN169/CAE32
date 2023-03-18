@@ -7,6 +7,7 @@
 **/Core/
 **/Debug/
 **/Drivers/
+**/Middleware/
 Codigo/Firmware/Main_board_HID/ESP32-S3/build/
 Codigo/Firmware/Main_board_HID/ESP32-S3/main/build/
 Codigo/Firmware/Main_board_HID/ESP32-S3/main/.cache/

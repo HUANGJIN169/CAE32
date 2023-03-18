@@ -4,6 +4,9 @@
 *.pdf
 *.*~
 **/compile_commands.json
+**/Core/
+**/Debug/
+**/Drivers/
 Codigo/Firmware/Main_board_HID/ESP32-S3/build/
 Codigo/Firmware/Main_board_HID/ESP32-S3/main/build/
 Codigo/Firmware/Main_board_HID/ESP32-S3/main/.cache/

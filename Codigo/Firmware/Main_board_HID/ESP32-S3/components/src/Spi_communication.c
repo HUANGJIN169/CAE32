@@ -13,7 +13,7 @@ uint8_t CONFIG_ADC_RESOLUTION = 0x02;
 uint8_t ACCE = 0x03;
 uint8_t BRAKE = 0x04;
 uint8_t CLUTCH = 0x05;
-uint8_t STATUS = 0x06;
+uint8_t STATUS = 0x01;
 //---------------------//
 
 spi_device_handle_t init_spi_device() {
@@ -44,19 +44,16 @@ spi_device_handle_t init_spi_device() {
     return spi;
 }
 
-void send_spi_data(spi_device_handle_t spi, uint8_t sended_data,
-                   uint8_t received_data) {
+void send_spi_data(spi_device_handle_t spi, uint8_t sended_data[4],
+                   uint8_t received_data[4]) {
     esp_err_t ret;
 
     spi_transaction_t t;
     memset(&t, 0, sizeof(t));
-    t.length = sizeof(sended_data) * 8;
-    t.tx_buffer = &sended_data;
-    t.rx_buffer = &received_data;
+    //    t.length = sizeof(sended_data) * 8;
+    t.length = 8 * 4;
+    // t.flags = SPI_TRANS_USE_RXDATA;
+    t.tx_buffer = sended_data;
+    t.rx_buffer = received_data;
     ret = spi_device_polling_transmit(spi, &t);
-    if (ret == ESP_OK) {
-        printf("Envío correcto: 0x%x\n", sended_data);
-    } else {
-        printf("Error de envío: %d\n", ret);
-    }
 }

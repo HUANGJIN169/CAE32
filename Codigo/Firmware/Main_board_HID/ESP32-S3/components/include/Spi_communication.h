@@ -17,5 +17,5 @@ extern uint8_t STATUS;
 //---------------------//
 
 spi_device_handle_t init_spi_device();
-void send_spi_data(spi_device_handle_t spi, uint8_t sended_data,
-                   uint8_t received_data);
+void send_spi_data(spi_device_handle_t spi, uint8_t sended_data[4],
+                   uint8_t received_data[4]);

@@ -1,19 +1,19 @@
 #include "Spi_communication.h"
 
 //  	Spi's pin	//
-uint8_t PIN_NUM_MISO = 37;
-uint8_t PIN_NUM_MOSI = 35;
-uint8_t PIN_NUM_CLK = 36;
-uint8_t PIN_NUM_CS = 45;
+const uint8_t PIN_NUM_MISO = 37;
+const uint8_t PIN_NUM_MOSI = 35;
+const uint8_t PIN_NUM_CLK = 36;
+const uint8_t PIN_NUM_CS = 45;
 //----------------------//
 
 //  Pedal's registers	//
-uint8_t VERSION = 0x01;
-uint8_t CONFIG_ADC_RESOLUTION = 0x02;
-uint8_t ACCE = 0x03;
-uint8_t BRAKE = 0x04;
-uint8_t CLUTCH = 0x05;
-uint8_t STATUS = 0x01;
+const uint8_t FIRMWARE_VERSION = 0x01;
+const uint8_t CONFIG_ADC_RESOLUTION = 0x02;
+const uint8_t RAW_ACCE_VALUE = 0x03;
+const uint8_t RAW_BRAKE_VALUE = 0x04;
+const uint8_t RAW_CLUTCH_VALUE = 0x05;
+const uint8_t STATUS = 0x01;
 //---------------------//
 
 spi_device_handle_t init_spi_device() {
@@ -36,24 +36,21 @@ spi_device_handle_t init_spi_device() {
         .max_transfer_sz = 0,
     };
 
-    esp_err_t ret;
-    ret = spi_bus_initialize(SPI2_HOST, &buscfg, 0);
-
-    ret = spi_bus_add_device(SPI2_HOST, &devcfg, &spi);
+    spi_bus_initialize(SPI2_HOST, &buscfg, 0);
+    spi_bus_add_device(SPI2_HOST, &devcfg, &spi);
 
     return spi;
 }
-
+/*
+ *Send 4 bytes and receive 3 bytes from spi comunication
+ */
 void send_spi_data(spi_device_handle_t spi, uint8_t sended_data[4],
-                   uint8_t received_data[4]) {
-    esp_err_t ret;
+                   uint8_t received_data[3]) {
 
     spi_transaction_t t;
     memset(&t, 0, sizeof(t));
-    //    t.length = sizeof(sended_data) * 8;
     t.length = 8 * 4;
-    // t.flags = SPI_TRANS_USE_RXDATA;
     t.tx_buffer = sended_data;
     t.rx_buffer = received_data;
-    ret = spi_device_polling_transmit(spi, &t);
+    spi_device_polling_transmit(spi, &t);
 }

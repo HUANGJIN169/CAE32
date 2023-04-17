@@ -2,6 +2,8 @@
 *.gcode
 *.zip
 *.pdf
+**-backups
+**fp-info-cache
 *.*~
 **/compile_commands.json
 /Core/

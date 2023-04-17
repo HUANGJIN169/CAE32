@@ -16,7 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 
-const char nameCAE[] = "Steering Wheel CAE32"; // Name device to compare with the file descriptor
+const char nameCAE[] = "CAE32 Steering Wheel"; // Name device to compare with the file descriptor
 int MAXDEVICES = 10;                           // The maximum number to check for device
 struct udev_source *source;
 

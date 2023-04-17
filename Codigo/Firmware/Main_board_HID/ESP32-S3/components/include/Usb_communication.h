@@ -13,5 +13,5 @@ uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
 
 uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance);
 void usb_initialization(void);
-
+void Send_custom_hid();
 #endif

@@ -1,7 +1,7 @@
 (kicad_pcb (version 20211014) (generator pcbnew)
 
   (general
-    (thickness 4.69)
+    (thickness 1.6)
   )
 
   (paper "A4")
@@ -45,11 +45,11 @@
       (layer "F.Paste" (type "Top Solder Paste"))
       (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
       (layer "F.Cu" (type "copper") (thickness 0.035))
-      (layer "dielectric 1" (type "core") (thickness 1.51) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 1" (type "core") (thickness 0.48) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "In1.Cu" (type "copper") (thickness 0.035))
-      (layer "dielectric 2" (type "prepreg") (thickness 1.51) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 2" (type "prepreg") (thickness 0.48) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "In2.Cu" (type "copper") (thickness 0.035))
-      (layer "dielectric 3" (type "core") (thickness 1.51) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 3" (type "core") (thickness 0.48) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "B.Cu" (type "copper") (thickness 0.035))
       (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
       (layer "B.Paste" (type "Bottom Solder Paste"))
@@ -550,7 +550,7 @@
       (net 22 "GNDREF") (pinfunction "2") (pintype "passive") (tstamp 7ba72304-d547-414c-acda-7c96becff06d))
     (pad "2" smd rect (at 2.575 0.85 90) (size 1.45 1) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 22 "GNDREF") (pinfunction "2") (pintype "passive") (tstamp b4c2e98b-d129-4121-a3cc-e78ed37fa713))
-    (model "/home/jose/Documentos/Volante_ESP/CAE32/Esquematicos/Modelo3D/EVQPUM02K-Part.step"
+    (model "${KICAD6_3DMODEL_DIR}/EVQPUM02K-Part.step"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -732,7 +732,7 @@
       (net 13 "/SWCLK") (pinfunction "2") (pintype "passive") (tstamp 35e57c16-23ee-4fe3-9be4-ae73cb0418a2))
     (pad "2" smd rect (at -2.575 0.85 90) (size 1.45 1) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 13 "/SWCLK") (pinfunction "2") (pintype "passive") (tstamp 45b27a5a-51da-4c20-96a0-6bd6c0bd27b7))
-    (model "/home/jose/Documentos/Volante_ESP/CAE32/Esquematicos/Modelo3D/EVQPUM02K-Part.step"
+    (model "${KICAD6_3DMODEL_DIR}/EVQPUM02K-Part.step"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))

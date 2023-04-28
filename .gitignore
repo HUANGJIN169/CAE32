@@ -1,9 +1,13 @@
 *.FCStd1
+**latex/
+**html/
 *.gcode
 *.zip
 *.pdf
 **-backups
 **fp-info-cache
+**executables/
+**obj/
 *.*~
 **/compile_commands.json
 /Core/

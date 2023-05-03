@@ -81,6 +81,7 @@ static gboolean CaptureEvent(gpointer data) {
   if (len < 0) {
     // detach device from the threadand update the visual state
     g_printerr("Error\n");
+    cae->found = FALSE;
     g_source_destroy((GSource *)source);
     gtk_label_set_text(GTK_LABEL(UI->text_status), "Desconectado");
     gtk_image_set_from_file(GTK_IMAGE(UI->visual_status), "../src_images/red.png");
@@ -208,26 +209,32 @@ int searchDevice(gpointer data) {
   CAE32App *app = G_POINTER_TO_CAE32_APP(data);
   ObjectsUI *UI = cae32_app_get_gui(app);
   Device *cae = CAE32_APP(app)->priv->device;
-  if (searchHIDDevice(cae, false) >= 0) { // Searching for a Joystick device
-    g_printerr("Monitoring Joystick device\n");
-    cae->found = true;
-    cae->isHID = false;
-    showStatusConnection(cae, UI);
-    configGSource(cae, app);
-    return 1;
-  }
-  if (searchHIDDevice(cae, true) >= 0) { // Searching for a HID device
-    g_printerr("Monitoring HID device\n");
-    cae->isHID = true;
-    cae->found = true;
-    showStatusConnection(cae, UI);
-    return 0;
-  }
+  g_printerr("valor de encotrado?:%s\n", cae->found ? "true" : "false");
+  if (cae->found == FALSE) {
+    if (searchHIDDevice(cae, false) >= 0) { // Searching for a Joystick device
+      g_printerr("Monitoring Joystick device\n");
+      cae->found = TRUE;
+      cae->isHID = FALSE;
+      showStatusConnection(cae, UI);
+      configGSource(cae, app);
+      return 1;
+    }
+    if (searchHIDDevice(cae, true) >= 0) { // Searching for a HID device
+      g_printerr("Monitoring HID device\n");
+      cae->isHID = TRUE;
+      cae->found = TRUE;
+      showStatusConnection(cae, UI);
+      return 0;
+    }
 
-  cae->found = false;
-  showStatusConnection(cae, UI);
-  g_printerr("I can't find the Device\n");
-  return -1;
+    // cae->found = FALSE;
+    showStatusConnection(cae, UI);
+    g_printerr("I can't find the Device\n");
+    return -1;
+  } else {
+    g_printerr("The device is already connected\n");
+    return -2;
+  }
 }
 
 void updateSteeringWheel(ObjectsUI *UI, guint16 value) {
